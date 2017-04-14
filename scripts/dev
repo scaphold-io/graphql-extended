@@ -1,0 +1,26 @@
+#!/bin/bash
+
+set -e
+cd $(dirname $0)/..
+
+npm_bin=$(npm bin)
+
+export TYPED_STATES_ENV=development
+export DEBUG=${}
+
+# Run Nodemon and watch the typed-states source code for changes.
+$npm_bin/nodemon \
+  --watch src \
+  --ignore __tests__ \
+  --ignore __mocks__ \
+  --ext js,ts \
+  --exec "$npm_bin/ts-node --ignore node_modules --show-error-stack json --watch $@" &
+
+# Ensure forked process is killed even if we die unexpectedly
+trap 'trap - SIGINT SIGTERM EXIT; JOBS="$(jobs -p)"; [[ "$JOBS" != "" ]] && kill $JOBS 2>/dev/null || true' SIGINT SIGTERM EXIT
+
+# Run `react-scripts` in the GraphiQL directory as well parallel, but pipe the
+# output to `/dev/null`.
+(cd src/typed-states/graphiql && PORT=5783 $npm_bin/react-scripts start) > /dev/null
+
+wait

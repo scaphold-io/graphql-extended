@@ -1,0 +1,17 @@
+language: node_js
+
+node_js:
+  - "6"
+  - "4.3.2"
+
+env:
+
+cache:
+  directories:
+    - node_modules
+    - $NVM_DIR
+
+script:
+  - scripts/ci
+
+after_success:

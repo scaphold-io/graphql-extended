@@ -1,0 +1,3 @@
+echo "Publishing to NPM"
+npm version patch
+npm publish
