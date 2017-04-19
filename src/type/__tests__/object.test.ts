@@ -5,7 +5,7 @@ import ComplexityReducer from '../../reducers/ComplexityReducer'
 
 test('Parse and build object with directives', () => {
   const spec = `
-  type Droid {
+  type User {
     id: ID!
       @relation(kind: HasOne)
 
@@ -25,13 +25,13 @@ test('Parse and build object with directives', () => {
   const parsed = parse(spec)
   const built = buildASTSchema(parsed)
   const query = `
-  query Test {
-    droid(id: "1000") {
+  query GetUserAndPosts {
+    user {
       id
-      serialNumber
+      username
     }
 
-    pets(limit: 20) {
+    posts(limit: 20) {
       name
       age
     }

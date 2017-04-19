@@ -10,8 +10,8 @@ It is often useful to be able to do some sort of analysis on a query before it e
 you might want to measure query complexity so that you can reject overly complicated queries.
 
 This library exposes a `QueryReducer` interface that when implemented can be passed to the `execute`
-function. A query reducer defines both a reducer that will applied to the query AST field by field
-as well as a context reducer that takes the results of the previous reducers and merges them into
+function. A query reducer defines `reduceField` which is called for each field selected in the
+query as well as `reduceCtx` which takes the results of the previous reducers and merges them into
 the GraphQL context.
 
 This is an example of a ComplexityReducer that counts a complexity of 1 for each field requested
@@ -50,14 +50,27 @@ export default class ComplexityReducer implements QueryReducer<number, Object> {
 }
 ```
 
-You can provide this reducer to the `execute` function so that `ctx.complexity` holds the value of
-the complexity for this query.
+You can provide this reducer to the `execute` function. The execute function will run the reducer
+and the `reduceCtx` method will make the result of `6` available to your reducers through
+`ctx.complexity`.
 
 ```javascript
 import { execute } from 'graphql-ext'
 execute({
   schema: built,
-  document: parse(query),
+  document: parse(`
+    query GetUserAndPosts {
+      user {
+        id
+        username
+      }
+
+      posts(limit: 20) {
+        name
+        age
+      }
+    }
+  `),
   queryReducers: [ new ComplexityReducer() ],
 })
 ```
