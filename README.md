@@ -2,9 +2,65 @@
 
 An extension of graphql-js that adds useful functionality for production graphql deployments.
 
-# Introduction
+# Features
 
-## Back to the fundamentals
+## Query Reducers
+
+It is often useful to be able to do some sort of analysis on a query before it executes. For example,
+you might want to measure query complexity so that you can reject overly complicated queries.
+
+This library exposes a `QueryReducer` interface that when implemented can be passed to the `execute`
+function. A query reducer defines both a reducer that will applied to the query AST field by field
+as well as a context reducer that takes the results of the previous reducers and merges them into
+the GraphQL context.
+
+This is an example of a ComplexityReducer that counts a complexity of 1 for each field requested
+in the query.
+
+```javascript
+import { QueryReducer } from 'graphql-ext'
+
+export default class ComplexityReducer implements QueryReducer<number, Object> {
+
+  public initial: number
+
+  constructor() {
+    this.initial = 0
+  }
+
+  public reduceField(parent: number, child: number): number {
+    const estimate = 1 + child
+    return parent + estimate
+  }
+
+  public reduceScalar(): number {
+    return 0
+  }
+
+  public reduceEnum(): number {
+    return 0
+  }
+
+  public reduceCtx(acc: number, ctx: Object): Object {
+    return {
+      ...ctx,
+      complexity: acc,
+    }
+  }
+}
+```
+
+You can provide this reducer to the `execute` function so that `ctx.complexity` holds the value of
+the complexity for this query.
+
+```javascript
+import { execute } from 'graphql-ext'
+execute({
+  schema: built,
+  document: parse(query),
+  queryReducers: [ new ComplexityReducer() ],
+})
+```
 
 # Developing
 
