@@ -1,6 +1,8 @@
 # graphql-ext
 
-An extension of graphql-js that adds useful functionality for production graphql deployments.
+An extension of graphql-js that adds useful functionality for production graphql servers.
+
+This project was inspired by features found in scala's [Sangria GraphQL Library](http://sangria-graphql.org/) but differs in some key ways.
 
 # Features
 
@@ -74,6 +76,105 @@ execute({
   queryReducers: [ new ComplexityReducer() ],
 })
 ```
+
+## Middleware
+
+Middleware lets you easily add custom logic that will be run within the lifecycle of a
+GraphQL query execution. The `Middleware` interface found in `execution/middleware.ts` defines four methods:
+
+- `beforeQuery`
+
+  - Run before a query is executed. This is responsible for providing a context object (or `MiddlewareValue`) that is specific to this middleware instance. E.G. this query might return a `new Map()` that can be manipulated & used by future calls to `beforeField`, `afterField`, and `afterQuery`
+
+- `afterQuery`
+
+  - Run after a query finishes executing. This serves as a convenient hook for consuming or logging information from the `MiddlewareValue` or other execution information.
+
+
+- `beforeField`
+
+  - Run after `field.resolve` for each field selected in the query. Any value returned from
+  this method serves as a context (or `FieldValue`) for this specific field. The return
+  value of this method is passed to `afterField` along with other execution information.
+
+- `afterField`
+
+  - Run after `field.resolve` for each field selected in the query. Any values returned from
+  this method will overwrite the result of the field resolver. If multiple `Middleware` implementations are passed to `execute` then the results of `afterField` are composed together such that the output of the first `afterField` is passed on as the input value to the next `afterField`.
+
+  ### Middleware Example
+
+  This middleware tracks the run time of each field resolver function. This is found in `middleware/ResolverTimerMiddleware`
+
+  ```javascript
+  import { Middleware, ResolverContext } from 'graphql-ext/execution/middleware'
+  import { ExecutionContext } from 'graphql-ext/execution/ExecutionContext'
+
+  type FieldTimerTimeUnit = 'milli' | 'micro' | 'nano'
+
+  export class ResolverTimerMiddleware implements Middleware<Map<string, number>, number, mixed> {
+
+    constructor(
+      private logger: (
+        totalRunTime: number,
+        resolverDurationMap: Map<string, number>,
+      ) => mixed | void,
+      private timeUnit: FieldTimerTimeUnit = 'milli',
+    ) {}
+
+    /**
+    * Returns a Map that acts as our Middleware's accumulator/context
+    */
+    public beforeQuery(): Map<string, number> {
+      const contextmap = new Map()
+      contextmap.set('__START__', this.getTime())
+      return contextmap
+    }
+
+    /**
+    * Returns the timestamp when a field starts to be executed.
+    */
+    public beforeField(): number {
+      return this.getTime()
+    }
+
+    /**
+    * Calculates the time since the field started resolution and updates MiddlewareValue
+    */
+    public afterField(
+      mVal: Map<string, number>,
+      fValue: number,
+      _value: mixed,
+      _eCtx: ExecutionContext,
+      mCtx: ResolverContext<mixed>,
+    ): undefined {
+      mVal.set(
+        `${mCtx.info.parentType.name}.${mCtx.info.fieldName}`,
+        this.getTime() - fValue,
+      )
+      return
+    }
+
+    /**
+    * Calculates the total query runtime and calls out to the user defined logger function.
+    */
+    public afterQuery(mVal: Map<string, number>): void {
+      const totalRuntime = this.getTime() - (mVal.get('__START__') as number)
+      mVal.delete('__START__')
+      this.logger(totalRuntime, mVal)
+    }
+
+    private getTime(): number {
+      const hrTime = process.hrtime()
+      switch (this.timeUnit) {
+        case 'milli': return hrTime[0] * 1000 + hrTime[1] / 1000000
+        case 'micro': return hrTime[0] * 1000000 + hrTime[1] / 1000
+        case 'nano': return hrTime[0] * 1000000000 + hrTime[1]
+        default: return hrTime[0] * 1000000000 + hrTime[1]
+      }
+    }
+  }
+  ```
 
 # Developing
 
