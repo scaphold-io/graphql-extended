@@ -29,8 +29,7 @@ export interface Middleware<MiddlewareValue, FieldValue, Ctx> {
   ): FieldValue
 
   /**
-   * Is provided the middleware wide accumulator, the field accumulator,
-   * the resolved value, and all context.
+   * Run for each field directly after field resolution.
    *
    * Returning a value from this method will change the output for the resolution
    */
