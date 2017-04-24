@@ -58,6 +58,8 @@ type User {
 
 // app.ts
 import factory from './factory'
+import 'types/User'
+import 'types/Post'
 const schema = factory.getSchema()
 ```
 
