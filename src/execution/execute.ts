@@ -58,8 +58,9 @@ import {
 } from 'graphql/language/ast'
 
 import { QueryReducer } from './queryReducer'
-import { Middleware } from './middleware'
+import { Middleware } from '../middleware/Middleware'
 import { ExecutionContext } from './ExecutionContext'
+import { GraphQLExtResolveInfo } from './GraphQLExtResolveInfo'
 
 /**
  * Terminology
@@ -253,7 +254,8 @@ function reduceQuery(
 
         // The resolve function's optional fourth argument is a collection of
         // information about the current execution state.
-        const info: GraphQLResolveInfo = {
+        const info: GraphQLExtResolveInfo = {
+          field: fieldDef,
           fieldName,
           fieldNodes,
           returnType,
@@ -629,7 +631,7 @@ function executeFields(
       }
       return results
     },
-    Object.create(null),
+    {},
   )
 
   // If there are no promises, we can just return the object
@@ -791,7 +793,7 @@ function promiseForObject<T>(
     values => values.reduce((resolvedObject, value, i) => {
       resolvedObject[keys[i]] = value
       return resolvedObject
-    }, Object.create(null)),
+    }, {}),
   )
 }
 
@@ -834,7 +836,8 @@ function resolveField(
 
   // The resolve function's optional fourth argument is a collection of
   // information about the current execution state.
-  const info: GraphQLResolveInfo = {
+  const info: GraphQLExtResolveInfo = {
+    field: fieldDef,
     fieldName,
     fieldNodes,
     returnType,
@@ -880,7 +883,7 @@ function resolveOrError<TSource, TContext>(
   resolveFn: GraphQLFieldResolver<TSource, TContext>,
   source: TSource,
   context: TContext,
-  info: GraphQLResolveInfo,
+  info: GraphQLExtResolveInfo,
   middlewareContext: MiddlewareContext,
 ): Error | mixed {
   try {
@@ -914,7 +917,10 @@ function resolveOrError<TSource, TContext>(
       if (middlewareContext.middleware.length === 0) {
         return value
       }
-      return middlewareContext.middleware.reduce((acc, mid, i) => {
+      /**
+       * Reduces right to left for pipelining middleware effect
+       */
+      return middlewareContext.middleware.reduceRight((acc, mid, i) => {
         const fieldVal = beforeFieldMiddleware[i]
         if (mid && (typeof mid.afterField === 'function')) {
           return acc.then(v =>
@@ -929,6 +935,7 @@ function resolveOrError<TSource, TContext>(
             ).then(
               // If afterField returned a value then propogate that on
               // to the next middlware function in the composition.
+              // If no value was returned then propogate the previous value.
               middlewareVal => middlewareVal ? middlewareVal : v,
             ),
           )

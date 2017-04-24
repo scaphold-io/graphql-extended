@@ -1,19 +1,9 @@
-import { Middleware, ResolverContext } from '../execution/middleware'
+import { Middleware, ResolverContext } from './Middleware'
 import { ExecutionContext } from '../execution/ExecutionContext'
 
 type FieldTimerTimeUnit = 'milli' | 'micro' | 'nano'
 
-export class ResolverTimerMiddleware implements Middleware<Map<string, number>, number, mixed> {
-
-  private getTime(): number {
-    const hrTime = process.hrtime()
-    switch (this.timeUnit) {
-      case 'milli': return hrTime[0] * 1000 + hrTime[1] / 1000000
-      case 'micro': return hrTime[0] * 1000000 + hrTime[1] / 1000
-      case 'nano': return hrTime[0] * 1000000000 + hrTime[1]
-      default: return hrTime[0] * 1000000000 + hrTime[1]
-    }
-  }
+export class ResolverTimer implements Middleware<Map<string, number>, number, mixed> {
 
   constructor(
     private logger: (
@@ -51,5 +41,15 @@ export class ResolverTimerMiddleware implements Middleware<Map<string, number>, 
     const totalRuntime = this.getTime() - (mVal.get('__START__') as number)
     mVal.delete('__START__')
     this.logger(totalRuntime, mVal)
+  }
+
+  private getTime(): number {
+    const hrTime = process.hrtime()
+    switch (this.timeUnit) {
+      case 'milli': return hrTime[0] * 1000 + hrTime[1] / 1000000
+      case 'micro': return hrTime[0] * 1000000 + hrTime[1] / 1000
+      case 'nano': return hrTime[0] * 1000000000 + hrTime[1]
+      default: return hrTime[0] * 1000000000 + hrTime[1]
+    }
   }
 }

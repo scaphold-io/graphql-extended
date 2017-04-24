@@ -19,6 +19,7 @@ import { getArgumentValues } from '../execution/values'
 
 import {
   GraphQLTypeResolver,
+  GraphQLFieldResolver,
 } from 'graphql'
 
 import {
@@ -97,6 +98,7 @@ import {
 
 import {
   GraphQLRelationDirective,
+  GraphQLDirectiveValue,
 } from '../type/directives'
 
 import {
@@ -116,8 +118,8 @@ import {
 } from 'graphql/type/introspection'
 
 import {
-  GraphQLDirectiveValue,
-} from '../type/directives'
+  TypeResolverMap,
+} from './ResolverMap'
 
 function buildWrappedType(
   innerType: GraphQLType,
@@ -142,6 +144,12 @@ function getNamedTypeNode(typeNode: TypeNode): NamedTypeNode {
   return namedType
 }
 
+// <TSource, TContext> = (
+//   schema: GraphQLSchema,
+//   type: GraphQLObjectType,
+//   field: GraphQLField<TSource, TContext>,
+// ) => GraphQLFieldResolver<TSource, TContext> | null
+
 /**
  * This takes the ast of a schema document produced by the parse function in
  * src/language/parser.js.
@@ -152,7 +160,10 @@ function getNamedTypeNode(typeNode: TypeNode): NamedTypeNode {
  * Given that AST it constructs a GraphQLSchema. The resulting schema
  * has no resolve methods, so execution will use default resolvers.
  */
-export function buildASTSchema(ast: DocumentNode): GraphQLSchema {
+export function buildASTSchema(
+  ast: DocumentNode,
+  resolverMap: TypeResolverMap<mixed, mixed> = {},
+): GraphQLSchema {
   if (!ast || ast.kind !== DOCUMENT) {
     throw new Error('Must provide a document ast.')
   }
@@ -396,14 +407,42 @@ export function buildASTSchema(ast: DocumentNode): GraphQLSchema {
     return new GraphQLObjectTypeExt({
       name: typeName,
       description: getDescription(def),
-      fields: () => makeFieldDefMap(def),
+      fields: () => makeObjectFieldDefMap(def),
       interfaces: () => makeImplementedInterfaces(def),
       directives: () => makeDirectiveValues(def),
     })
   }
 
-  function makeFieldDefMap(
-    def: ObjectTypeDefinitionNode | InterfaceTypeDefinitionNode,
+  function getResolver(
+    type: ObjectTypeDefinitionNode,
+    field: FieldDefinitionNode,
+  ): GraphQLFieldResolver<mixed, mixed> {
+    if (resolverMap && resolverMap[type.name.value] && resolverMap[type.name.value][field.name.value]) {
+      return resolverMap[type.name.value][field.name.value]
+    }
+    // If no resolver is defined, return the identity function.
+    return (s: mixed) => s ? s[field.name.value] : s
+  }
+
+  function makeObjectFieldDefMap(
+    def: ObjectTypeDefinitionNode,
+  ): GraphQLFieldConfigMapExt<mixed, mixed> {
+    return keyValMap<FieldDefinitionNode, GraphQLFieldConfigExt<mixed, mixed>> (
+      def.fields,
+      field => field.name.value,
+      field => ({
+        type: produceOutputType(field.type),
+        description: getDescription(field),
+        args: makeInputValues(field.arguments) as GraphQLFieldConfigArgumentMap,
+        deprecationReason: getDeprecationReason(field.directives),
+        directives: makeDirectiveValues(field),
+        resolve: getResolver(def, field),
+      }),
+    )
+  }
+
+  function makeInterfaceFieldDefMap(
+    def: InterfaceTypeDefinitionNode,
   ): GraphQLFieldConfigMapExt<mixed, mixed> {
     return keyValMap<FieldDefinitionNode, GraphQLFieldConfigExt<mixed, mixed>> (
       def.fields,
@@ -450,7 +489,7 @@ export function buildASTSchema(ast: DocumentNode): GraphQLSchema {
     return new GraphQLInterfaceType({
       name: typeName,
       description: getDescription(def),
-      fields: () => makeFieldDefMap(def),
+      fields: () => makeInterfaceFieldDefMap(def),
       resolveType: cannotExecuteSchema,
     })
   }

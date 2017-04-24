@@ -104,7 +104,7 @@ GraphQL query execution. The `Middleware` interface found in `execution/middlewa
 
   ### Middleware Example
 
-  This middleware tracks the run time of each field resolver function. This is found in `middleware/ResolverTimerMiddleware`
+  This middleware tracks the run time of each field resolver function. This is found in `middleware/ResolverTimer`
 
   ```javascript
   import { Middleware, ResolverContext } from 'graphql-ext/execution/middleware'
@@ -112,7 +112,7 @@ GraphQL query execution. The `Middleware` interface found in `execution/middlewa
 
   type FieldTimerTimeUnit = 'milli' | 'micro' | 'nano'
 
-  export class ResolverTimerMiddleware implements Middleware<Map<string, number>, number, mixed> {
+  export class ResolverTimer implements Middleware<Map<string, number>, number, mixed> {
 
     constructor(
       private logger: (

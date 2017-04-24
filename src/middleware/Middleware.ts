@@ -1,9 +1,9 @@
 import {
-  GraphQLResolveInfo,
-} from 'graphql'
+  GraphQLExtResolveInfo,
+} from '../execution/GraphQLExtResolveInfo'
 import {
   ExecutionContext,
-} from './ExecutionContext'
+} from '../execution/ExecutionContext'
 
 // export type MiddlewareValue = mixed
 // export type FieldValue = mixed
@@ -64,5 +64,5 @@ export interface ResolverContext<Ctx> {
   source: mixed,
   args: mixed,
   context: Ctx,
-  info: GraphQLResolveInfo,
+  info: GraphQLExtResolveInfo,
 }

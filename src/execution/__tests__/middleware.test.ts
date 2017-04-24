@@ -1,12 +1,13 @@
 import { parse } from 'graphql'
 import { buildASTSchema } from '../../utilities/buildASTSchema'
 import { execute } from '../../execution/execute'
-import { ResolverTimerMiddleware } from '../../middleware/ResolverTimerMiddleware'
+import { ResolverTimer } from '../../middleware/ResolverTimer'
 
-test('Build simple schema and execute with ComplexityReducer', () => {
+test('Build simple schema and execute with ResolverTimer', () => {
   const spec = `
   type Droid {
     id: ID!
+      @relation(kind: HasMany)
 
     serialNumber: String!
   }
@@ -40,7 +41,7 @@ test('Build simple schema and execute with ComplexityReducer', () => {
   execute({
     schema: built,
     document: parse(query),
-    middleware: [ new ResolverTimerMiddleware(
+    middleware: [ new ResolverTimer(
       (totalRuntime, _resTimer) => {
         expect(totalRuntime).toBeGreaterThan(1)
       },
