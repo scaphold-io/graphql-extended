@@ -51,14 +51,6 @@ export interface Middleware<MiddlewareValue, FieldValue, Ctx> {
   ): mixed
 }
 
-// export interface BeforeFieldMiddleware<Ctx> {
-
-// }
-
-// export interface AfterFieldMiddleware<Ctx> {
-
-// }
-
 export interface ResolverContext<Ctx> {
   source: mixed,
   args: mixed,

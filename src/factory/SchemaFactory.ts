@@ -112,7 +112,6 @@ import {
 } from '../type/directives'
 
 const DEFAULT_DIRECTIVES = {
-  relation: GraphQLRelationDirective,
   deprecated: GraphQLDeprecatedDirective,
   include: GraphQLIncludeDirective,
   skip: GraphQLSkipDirective,

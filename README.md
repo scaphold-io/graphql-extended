@@ -1,4 +1,4 @@
-# graphql-ext
+# graphql-extended
 
 An extension of graphql-js that adds useful functionality for production graphql servers.
 
@@ -75,7 +75,7 @@ This is an example of a ComplexityReducer that counts a complexity of 1 for each
 in the query.
 
 ```javascript
-import { QueryReducer } from 'graphql-ext'
+import { QueryReducer } from 'graphql-extended'
 
 export default class ComplexityReducer implements QueryReducer<number, Object> {
 
@@ -112,7 +112,7 @@ and the `reduceCtx` method will make the result of `6` available to your reducer
 `ctx.complexity`.
 
 ```javascript
-import { execute } from 'graphql-ext'
+import { execute } from 'graphql-extended'
 execute({
   schema: built,
   document: parse(`
@@ -162,8 +162,8 @@ GraphQL query execution. The `Middleware` interface found in `execution/middlewa
   This middleware tracks the run time of each field resolver function. This is found in `middleware/ResolverTimer`
 
   ```javascript
-  import { Middleware, ResolverContext } from 'graphql-ext/execution/middleware'
-  import { ExecutionContext } from 'graphql-ext/execution/ExecutionContext'
+  import { Middleware, ResolverContext } from 'graphql-extended/execution/middleware'
+  import { ExecutionContext } from 'graphql-extended/execution/ExecutionContext'
 
   type FieldTimerTimeUnit = 'milli' | 'micro' | 'nano'
 
@@ -237,8 +237,8 @@ This project is written in [Typescript](https://www.typescriptlang.org/) and req
 
 To develop this project locally clone & build the project.
 
-1. `mkdir graphql-ext && cd graphql-ext`
-2. `git clone https://github.com/scaphold/graphql-ext.git .`
+1. `mkdir graphql-extended && cd graphql-extended`
+2. `git clone https://github.com/scaphold/graphql-extended.git .`
 3. `npm install`
 4. `npm run buildw`
 
