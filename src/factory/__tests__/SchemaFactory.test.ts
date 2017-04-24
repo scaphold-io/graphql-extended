@@ -1,8 +1,8 @@
 import { SchemaFactory } from '../SchemaFactory'
 
 test('Create a registry and add types and resolvers', () => {
-  const registry = new SchemaFactory()
-  registry.add(`
+  const factory = new SchemaFactory()
+  factory.extendWithSpec(`
   type Query {
     get: String
     t: NewType
@@ -16,7 +16,7 @@ test('Create a registry and add types and resolvers', () => {
     },
   })
 
-  registry.add(`
+  factory.extendWithSpec(`
   enum FakeEnum { a b c }
   type NewType {
     id: ID!
@@ -27,6 +27,6 @@ test('Create a registry and add types and resolvers', () => {
       id: () => 1,
     },
   })
-  const schema = registry.getSchema()
+  const schema = factory.getSchema()
   expect(schema.getType('Query')).toBeTruthy()
 })

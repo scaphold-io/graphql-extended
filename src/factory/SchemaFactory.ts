@@ -266,10 +266,10 @@ export class SchemaFactory {
   }
 
   /**
-   * Adds a spec to the
+   * extendWithSpecs a spec to the
    * @param spec A GraphQL document string containing the new schema elements
    */
-  public add(spec: string, resolvers: TypeResolverMap<mixed, mixed> = {}): SchemaFactory {
+  public extendWithSpec(spec: string, resolvers: TypeResolverMap<mixed, mixed> = {}): SchemaFactory {
     const def = parse(spec)
     if (!def) {
       throw new Error('GraphQL spec must have atleast one definition')
@@ -323,7 +323,6 @@ export class SchemaFactory {
   protected getDirective(
     directiveNode: DirectiveDefinitionNode,
   ): GraphQLDirective {
-    debugger
     return new GraphQLDirective({
       name: directiveNode.name.value,
       description: getDescription(directiveNode),

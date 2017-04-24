@@ -6,6 +6,61 @@ This project was inspired by features found in scala's [Sangria GraphQL Library]
 
 # Features
 
+## Schema Factory
+
+The schema factory provides a powerful abstraction on top of graphql-js that simplfies managing and building complex schemas. The factory is backed by immutable data structures and provides helpful methods to create GraphQL schemas from schema language.
+
+The factory can also help you break up your schemas across different files. Here is an example of the factory at work.
+
+```javascript
+// factory.ts
+const factory = new SchemaFactory()
+export default factory
+
+// types/User.ts
+import factory from '../factory'
+factory.extendWithSpec(`
+type Query {
+  user: User
+  posts: [Post]
+}
+`, {
+  Query: {
+    user: (_source, _args, ctx) => ctx.db.User.getLoggedIn(),
+  },
+})
+
+// types/Post.ts
+import factory from '../factory'
+factory.extendWithSpec(`
+enum PostType { Image Text Video }
+
+type Post {
+  id: ID!
+  type: PostType!
+  title: String
+  url: String
+
+}
+`)
+
+// types/User.ts
+import factory from '../factory'
+factory.extendWithSpec(`
+type User {
+  id: ID!
+  username: String!
+  password: String!
+  createdAt: DateTime
+  lastLogin: DateTime
+}
+`)
+
+// app.ts
+import factory from './factory'
+const schema = factory.getSchema()
+```
+
 ## Query Reducers
 
 It is often useful to be able to do some sort of analysis on a query before it executes. For example,
