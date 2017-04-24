@@ -1,6 +1,6 @@
 {
   "name": "graphql-ext",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "An extension of GraphQL adding higher order functionality.",
   "author": "Michael Paris <michael@scaphold.io>",
   "license": "MIT",
