@@ -25,7 +25,7 @@ export default class DirectiveCollector<ReducedDirective> implements QueryReduce
     info: GraphQLExtResolveInfo,
   ): Array<ReducedDirective> {
     const reduced = (info.field as GraphQLFieldExt<mixed, mixed>).directives.map(
-      directive => this.handleDirective(directive)
+      directive => this.handleDirective(directive),
     )
     return [...parent, ...reduced, ...child]
   }

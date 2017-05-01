@@ -31,7 +31,9 @@
     "lint": "./scripts/lint",
     "ci": "./scripts/ci",
     "test": "jest",
-    "coverage": "jest --coverage"
+    "coverage": "jest --coverage",
+    "check": "npm run lint && npm run test",
+    "patch-release": "npm version patch && npm publish && git push --follow-tags"
   },
   "dependencies": {
     "@types/ramda": "0.0.5",

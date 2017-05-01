@@ -304,9 +304,11 @@ export class SchemaFactory {
 
     this.resolverMap = this.resolverMap.mergeWith((oldVal, newVal, key: string) => {
       if (oldVal && newVal) {
+        /* tslint:disable */
         console.warn(
           `Found duplicate resolver definitions for type '${key}'`,
         )
+        /* tslint:enable */
         return newVal
       }
       return newVal as FieldResolverMap

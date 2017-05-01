@@ -418,7 +418,7 @@ function buildMiddlewareContext(
 function runAfterQueryware(
   exeContext: ExecutionContext,
   middlewareContext: MiddlewareContext,
-) {
+): void {
   try {
     for (let i = 0; i < middlewareContext.middleware.length; i++) {
       const midd = middlewareContext.middleware[i]
