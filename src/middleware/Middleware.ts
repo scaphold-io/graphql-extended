@@ -22,6 +22,13 @@ export interface Middleware<MiddlewareValue, FieldValue, Ctx> {
    */
   afterQuery?(mVal: MiddlewareValue, mctx: ExecutionContext): void
 
+  /**
+   * Run for each field directly before field resolution.
+   *
+   * @return Returns a tuple containing a FieldValue and an optional resolution value.
+   * If beforeField returns a second value in the tuple, that is the result of the
+   * execution. This is convenient for cache checking for example.
+   */
   beforeField?(
     mVal: MiddlewareValue,
     eCtx: ExecutionContext,

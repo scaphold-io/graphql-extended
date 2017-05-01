@@ -20,6 +20,7 @@ import { getArgumentValues } from '../execution/values'
 import {
   GraphQLTypeResolver,
   GraphQLFieldResolver,
+  GraphQLError,
 } from 'graphql'
 
 import {
@@ -356,10 +357,18 @@ export function buildASTSchema(
   }
 
   function produceDirectiveValue(directiveNode: DirectiveNode): GraphQLDirectiveValue {
+    const directiveType = directives.find(o => o.name === directiveNode.name.value)
+    if (!directiveType) {
+      throw new GraphQLError(
+        `Unrecognized directive ${directiveNode.name.value} found on schema`,
+        [directiveNode],
+        undefined,
+      )
+    }
     return new GraphQLDirectiveValue({
       name: directiveNode.name.value,
       description: getDescription(directiveNode),
-      args: getArgumentValues(GraphQLRelationDirective, directiveNode),
+      args: getArgumentValues(directiveType, directiveNode),
     })
   }
 

@@ -338,7 +338,8 @@ function reduceType(
 
           // The resolve function's optional fourth argument is a collection of
           // information about the current execution state.
-          const info: GraphQLResolveInfo = {
+          const info: GraphQLExtResolveInfo = {
+            field: fieldDef,
             fieldName,
             fieldNodes,
             returnType,

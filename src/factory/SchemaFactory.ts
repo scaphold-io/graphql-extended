@@ -152,7 +152,7 @@ export class SchemaFactory {
 
   protected nodeMap: Map<string, TypeDefinitionNode>
 
-  protected directiveNodeMap: Map<string, DirectiveDefinitionNode>
+  protected directiveMap: Map<string, GraphQLDirective>
 
   protected resolverMap: Map<string, FieldResolverMap>
 
@@ -177,7 +177,7 @@ export class SchemaFactory {
       __TypeKind,
     })
     this.schemaDef = null
-    this.directiveNodeMap = Map<string, DirectiveDefinitionNode>()
+    this.directiveMap = Map<string, GraphQLDirective>(DEFAULT_DIRECTIVES)
     this.resolverMap = Map<string, FieldResolverMap>()
   }
 
@@ -245,7 +245,7 @@ export class SchemaFactory {
 
     const types = this.nodeMap.valueSeq().map(def => this.typeDefNamed(def!.name.value)).toArray()
 
-    let directives = this.directiveNodeMap.map(this.getDirective).toMap().merge(DEFAULT_DIRECTIVES).valueSeq().toArray()
+    let directives = this.directiveMap.toArray()
 
     return new GraphQLSchema({
       query: this.getObjectType(this.nodeMap.get(queryTypeName)),
@@ -289,12 +289,12 @@ export class SchemaFactory {
         case UNION_TYPE_DEFINITION:
         case INPUT_OBJECT_TYPE_DEFINITION:
           this.nodeMap = this.nodeMap.set(
-            (d as TypeDefinitionNode).name.value, d as TypeDefinitionNode
+            (d as TypeDefinitionNode).name.value, d as TypeDefinitionNode,
           )
           break
         case DIRECTIVE_DEFINITION:
-          this.directiveNodeMap = this.directiveNodeMap.set(
-            (d as DirectiveDefinitionNode).name.value, d as DirectiveDefinitionNode
+          this.directiveMap = this.directiveMap.set(
+            (d as DirectiveDefinitionNode).name.value, this.getDirective(d),
           )
           break
         default:

@@ -11,7 +11,7 @@ test('Build simple schema and execute with ResolverTimer', () => {
   }
   `
   const factory = new SchemaFactory()
-  factory.add(spec, {
+  factory.extendWithSpec(spec, {
     Query: {
       getString: () => 'getString',
       getNonNullString: () => 'getNonNullString',

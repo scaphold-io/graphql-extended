@@ -4,26 +4,30 @@ test('Create a registry and add types and resolvers', () => {
   const factory = new SchemaFactory()
   factory.extendWithSpec(`
   type Query {
-    get: String
-    t: NewType
+    user: User
+    posts: [Post]
   }
   schema {
     query: Query
   }
+  type User {
+    id: ID!
+    name: String!
+  }
   `, {
     Query: {
-      get: () => 'Hello, world',
+      user: () => ({ id: 1, name: 'Hello, world' }),
     },
   })
 
   factory.extendWithSpec(`
-  enum FakeEnum { a b c }
-  type NewType {
+  enum PostType { image video text }
+  type Post {
     id: ID!
-    e: FakeEnum
+    type: PostType
   }
   `, {
-    NewType: {
+    Post: {
       id: () => 1,
     },
   })
