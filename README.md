@@ -5,17 +5,11 @@ An extension of graphql-js that adds useful functionality for production graphql
 # Features
 
 - [Schema Factory](#schema-factory): Use schema lang to reliably build schemas spread across many files.
-
 - [Factory Middleware](#factory-middleware): Automate schema build tasks.
-
   - [Relay Middleware](#relay-middleware): Turn simple schemas into Relay compliant ones.
-
 - [Query Reducers](#query-reducers): Dynamically collect information on queries.
-
   - [Complexity Reducer](#complexity-reducer): Measure query complexity
-
 - [Query Middleware](#query-middleware): Regularly execute code at query time.
-
   - [Resolver Timer Middleware](#resolver-timer-middleware): Measure query complexity
 
 ## Schema Factory
