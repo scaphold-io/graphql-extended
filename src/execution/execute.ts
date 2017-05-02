@@ -113,16 +113,17 @@ export type ExecutionConfig = {
  * If the arguments to this function do not result in a legal execution context,
  * a GraphQLError will be thrown immediately explaining the invalid input.
  */
-export function execute({
-  schema,
-  document,
-  rootValue,
-  contextValue,
-  variableValues,
-  operationName,
-  queryReducers,
-  middleware,
-}: ExecutionConfig): Promise<ExecutionResult> {
+export function execute(config: ExecutionConfig): Promise<ExecutionResult> {
+  const {
+    schema,
+    document,
+    rootValue,
+    contextValue,
+    variableValues,
+    operationName,
+    queryReducers,
+    middleware,
+  } = config
   invariant(schema, 'Must provide schema')
   invariant(document, 'Must provide document')
   invariant(
