@@ -2,9 +2,21 @@
 
 An extension of graphql-js that adds useful functionality for production graphql servers.
 
-This project was inspired by features found in scala's [Sangria GraphQL Library](http://sangria-graphql.org/) but differs in some key ways.
-
 # Features
+
+- [Schema Factory](#schema-factory): Use schema lang to reliably build schemas spread across many files.
+
+- [Factory Middleware](#factory-middleware): Automate schema build tasks.
+
+  - [Relay Middleware](#relay-middleware): Turn simple schemas into Relay compliant ones.
+
+- [Query Reducers](#query-reducers): Dynamically collect information on queries.
+
+  - [Complexity Reducer](#complexity-reducer): Measure query complexity
+
+- [Query Middleware](#query-middleware): Regularly execute code at query time.
+
+  - [Resolver Timer Middleware](#resolver-timer-middleware): Measure query complexity
 
 ## Schema Factory
 
@@ -63,7 +75,7 @@ import 'types/Post'
 const schema = factory.getSchema()
 ```
 
-### Factory Middleware
+## Factory Middleware
 
 Just like it is useful to have middleware that runs within the time frame of a query execution,
 it is also useful to be able to apply middleware at the schema generation phase. For example, you
@@ -139,6 +151,8 @@ type Query {
 As you can see this can be extremely verbose. To help with this, the SchemaFactory takes
 an optional FactoryMiddleware instance in its config that can help automate these tasks.
 
+### Relay Middleware
+
 This library comes with a RelayMiddlware class that you can immediately use to turn simple
 GraphQL schemas into Relay complaint ones. The code below will automatically convert the
 schema document in to the Relay compliant schema demonstrated above.
@@ -179,6 +193,8 @@ This library exposes a `QueryReducer` interface that when implemented can be pas
 function. A query reducer defines `reduceField` which is called for each field selected in the
 query as well as `reduceCtx` which takes the results of the previous reducers and merges them into
 the GraphQL context.
+
+### Complexity Reducer
 
 This is an example of a ComplexityReducer that counts a complexity of 1 for each field requested
 in the query.
@@ -241,7 +257,7 @@ execute({
 })
 ```
 
-## Middleware
+## Query Middleware
 
 Middleware lets you easily add custom logic that will be run within the lifecycle of a
 GraphQL query execution. The `Middleware` interface found in `execution/middleware.ts` defines four methods:
@@ -266,7 +282,7 @@ GraphQL query execution. The `Middleware` interface found in `execution/middlewa
   - Run after `field.resolve` for each field selected in the query. Any values returned from
   this method will overwrite the result of the field resolver. If multiple `Middleware` implementations are passed to `execute` then the results of `afterField` are composed together such that the output of the first `afterField` is passed on as the input value to the next `afterField`.
 
-  ### Middleware Example
+  ### Resolver Timer Middleware
 
   This middleware tracks the run time of each field resolver function. This is found in `middleware/ResolverTimer`
 
