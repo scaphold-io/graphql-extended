@@ -88,12 +88,12 @@ Example:
 A simple schema without Relay style connections might look like this.
 
 ```graphql
-type User {
+type User implements Node {
   id: ID!
   name: String!
 }
 
-type Post {
+type Post implements Node {
   id: ID!
   title: String!
 }
@@ -107,7 +107,7 @@ type Query {
 And this same conceptual schema with Relay style connections would look like this.
 
 ```graphql
-type User {
+type User implements Node {
   id: ID!
   name: String!
 }
@@ -122,7 +122,7 @@ type UserConnection {
   pageInfo: PageInfo
 }
 
-type Post {
+type Post implements Node {
   id: ID!
   title: String!
 }
