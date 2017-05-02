@@ -6,14 +6,18 @@ import { getDescription, getDeprecationReason } from '../utilities'
 import {
   TypeResolverMap,
   FieldResolverMap,
+  ScalarResolverMap,
 } from '../utilities/ResolverMap'
+import {
+  FactoryMiddleware,
+} from './FactoryMiddleware'
 
 import { Map } from 'immutable'
 
 import {
-  GraphQLTypeResolver,
   GraphQLFieldResolver,
   parse,
+  Kind,
 } from 'graphql'
 
 import {
@@ -67,6 +71,7 @@ import {
   GraphQLNonNull,
   isInputType,
   isOutputType,
+  GraphQLTypeResolver,
 } from 'graphql/type/definition'
 
 import { GraphQLObjectTypeExt } from '../type/object'
@@ -140,7 +145,9 @@ function getNamedTypeNode(typeNode: TypeNode): NamedTypeNode {
   return namedType
 }
 
-interface SchemaFactoryConfig {}
+interface SchemaFactoryConfig {
+  middleware?: FactoryMiddleware
+}
 /**
  * A base class that handles managing and building GraphQL schemas
  */
@@ -152,15 +159,23 @@ export class SchemaFactory {
 
   protected nodeMap: Map<string, TypeDefinitionNode>
 
+  protected resolverMap: Map<string, FieldResolverMap>
+
+  protected typeResolverMap: Map<string, GraphQLTypeResolver<mixed, mixed>>
+
   protected directiveMap: Map<string, GraphQLDirective>
 
-  protected resolverMap: Map<string, FieldResolverMap>
+  protected scalarResolvers: Map<string, ScalarResolverMap<mixed, mixed>>
 
   private config: SchemaFactoryConfig
 
+  private middleware: FactoryMiddleware
+
   constructor(config: SchemaFactoryConfig = {}) {
     this.config = config
+    this.middleware = config.middleware ? config.middleware : new FactoryMiddleware()
     this.nodeMap = Map<string, TypeDefinitionNode>()
+    this.typeResolverMap = Map<string, GraphQLTypeResolver<mixed, mixed>>()
     this.typeMap = Map<string, GraphQLNamedType>({
       String: GraphQLString,
       Int: GraphQLInt,
@@ -186,6 +201,9 @@ export class SchemaFactory {
    */
 
   private buildSchema(): GraphQLSchema {
+
+    // Initialize the middleware.
+    this.middleware.beforeBuild(this)
 
     let queryTypeName: string | null = null
     let mutationTypeName: string | null = null
@@ -247,25 +265,159 @@ export class SchemaFactory {
 
     let directives = this.directiveMap.toArray()
 
-    return new GraphQLSchema({
-      query: this.getObjectType(this.nodeMap.get(queryTypeName)),
-      mutation: mutationTypeName ?
-        this.getObjectType(this.nodeMap.get(mutationTypeName)) :
-        undefined,
-      subscription: subscriptionTypeName ?
-        this.getObjectType(this.nodeMap.get(subscriptionTypeName)) :
-        undefined,
-      types,
-      directives,
-    })
+    return this.middleware.afterBuild(
+      new GraphQLSchema({
+        query: this.getObjectType(this.nodeMap.get(queryTypeName)),
+        mutation: mutationTypeName ?
+          this.getObjectType(this.nodeMap.get(mutationTypeName)) :
+          undefined,
+        subscription: subscriptionTypeName ?
+          this.getObjectType(this.nodeMap.get(subscriptionTypeName)) :
+          undefined,
+        types,
+        directives,
+      }),
+    )
   }
 
   public getSchema(): GraphQLSchema {
     return this.buildSchema()
   }
 
+  public getType(name: string): GraphQLNamedType {
+    return this.typeDefNamed(name)
+  }
+
   /**
-   * extendWithSpecs a spec to the
+   * Add a single object type to the schema.
+   * @param spec A single type declaration as GraphQL schema IDL
+   * @param resolvers An object with field names for keys and GraphQLFieldResolver functions as values.
+   */
+  public createType(spec: string, resolvers: FieldResolverMap = {}): SchemaFactory {
+    const def = parse(spec)
+    invariant(
+      def && def.definitions.length === 1,
+      'Factory.createType expects exactly one definition',
+    )
+    const definition = def.definitions[0]
+    invariant(
+      definition.kind === Kind.OBJECT_TYPE_DEFINITION,
+      `Factory.createType expects a single definition of kind ${Kind.OBJECT_TYPE_DEFINITION}`,
+    )
+    const objectDef: ObjectTypeDefinitionNode = (definition as ObjectTypeDefinitionNode)
+    this.nodeMap = this.nodeMap.set(
+      objectDef.name.value,
+      objectDef,
+    )
+    this.resolverMap = this.resolverMap.set(
+      objectDef.name.value,
+      resolvers,
+    )
+    return this
+  }
+
+  /**
+   * Add a single interface type to the schema.
+   * @param spec A single type declaration as GraphQL schema IDL
+   * @param resolveType A GraphQLTypeResolver for the interface
+   */
+  public createInterface(
+    spec: string,
+    resolveType: GraphQLTypeResolver<mixed, mixed>,
+  ): SchemaFactory {
+    const def = parse(spec)
+    invariant(
+      def && def.definitions.length === 1,
+      'Factory.createInterface expects exactly one definition',
+    )
+    const definition = def.definitions[0]
+    invariant(
+      definition.kind === Kind.INTERFACE_TYPE_DEFINITION,
+      `Factory.createInterface expects a single definition of kind ${Kind.INTERFACE_TYPE_DEFINITION}`,
+    )
+    const iDef: InterfaceTypeDefinitionNode = (definition as InterfaceTypeDefinitionNode)
+    this.nodeMap = this.nodeMap.set(
+      iDef.name.value,
+      iDef,
+    )
+    this.typeResolverMap = this.typeResolverMap.set(
+      iDef.name.value,
+      resolveType,
+    )
+    return this
+  }
+
+  /**
+   * Add a single enum type to the schema.
+   * @param spec A single type declaration as GraphQL schema IDL
+   */
+  public createEnum(
+    spec: string,
+  ): SchemaFactory {
+    const def = parse(spec)
+    invariant(
+      def && def.definitions.length === 1,
+      'Factory.createEnum expects exactly one definition',
+    )
+    const definition = def.definitions[0]
+    invariant(
+      definition.kind === Kind.ENUM_TYPE_DEFINITION,
+      `Factory.createEnum expects a single definition of kind ${Kind.ENUM_TYPE_DEFINITION}`,
+    )
+    const eDef: EnumTypeDefinitionNode = (definition as EnumTypeDefinitionNode)
+    this.nodeMap = this.nodeMap.set(
+      eDef.name.value,
+      eDef,
+    )
+    return this
+  }
+
+  /**
+   * Add a single union type to the schema.
+   * @param spec A single type declaration as GraphQL schema IDL
+   * @param resolveType A GraphQLTypeResolver for the union
+   */
+  public createUnion(
+    spec: string,
+    resolveType: GraphQLTypeResolver<mixed, mixed>,
+  ): SchemaFactory {
+    const def = parse(spec)
+    invariant(
+      def && def.definitions.length === 1,
+      'Factory.createEnum expects exactly one definition',
+    )
+    const definition = def.definitions[0]
+    invariant(
+      definition.kind === Kind.ENUM_TYPE_DEFINITION,
+      `Factory.createEnum expects a single definition of kind ${Kind.ENUM_TYPE_DEFINITION}`,
+    )
+    const eDef: EnumTypeDefinitionNode = (definition as EnumTypeDefinitionNode)
+    this.nodeMap = this.nodeMap.set(
+      eDef.name.value,
+      eDef,
+    )
+    this.typeResolverMap = this.typeResolverMap.set(
+      eDef.name.value,
+      resolveType,
+    )
+    return this
+  }
+
+  /**
+   * Extends the factories type cache with prebuilt GraphQL types.
+   * @param types
+   */
+  public extendWithTypes(types: Array<GraphQLNamedType>): SchemaFactory {
+    types.forEach(type => {
+      this.typeMap = this.typeMap.set(type.name, type)
+    })
+    return this
+  }
+
+  /**
+   * Append a GraphQL IDL document to the factory. Any type collisions are resolved
+   * via the schema's CollisionResolver.
+   *
    * @param spec A GraphQL document string containing the new schema elements
    */
   public extendWithSpec(spec: string, resolvers: TypeResolverMap<mixed, mixed> = {}): SchemaFactory {
@@ -402,19 +554,32 @@ export class SchemaFactory {
     if (!def) {
       throw new Error('def must be defined')
     }
+    // Create types from AST nodes. This is where factory middleware wraps nodes.
     switch (def.kind) {
       case OBJECT_TYPE_DEFINITION:
-        return this.makeTypeDef(def)
+        return this.makeTypeDef(
+          this.middleware.wrapObjectNode(this, def),
+        )
       case INTERFACE_TYPE_DEFINITION:
-        return this.makeInterfaceDef(def)
+        return this.makeInterfaceDef(
+          this.middleware.wrapInterfaceNode(this, def),
+        )
       case ENUM_TYPE_DEFINITION:
-        return this.makeEnumDef(def)
+        return this.makeEnumDef(
+          this.middleware.wrapEnumNode(this, def),
+        )
       case UNION_TYPE_DEFINITION:
-        return this.makeUnionDef(def)
+        return this.makeUnionDef(
+          this.middleware.wrapUnionNode(this, def),
+        )
       case SCALAR_TYPE_DEFINITION:
-        return this.makeScalarDef(def)
+        return this.makeScalarDef(
+          this.middleware.wrapScalarNode(this, def),
+        )
       case INPUT_OBJECT_TYPE_DEFINITION:
-        return this.makeInputObjectDef(def)
+        return this.makeInputObjectDef(
+          this.middleware.wrapInputNode(this, def),
+        )
       default:
         throw new Error(`Type kind "${def}" not supported.`)
     }
@@ -449,14 +614,20 @@ export class SchemaFactory {
     return keyValMap<FieldDefinitionNode, GraphQLFieldConfigExt<mixed, mixed>> (
       def.fields,
       field => field.name.value,
-      field => ({
-        type: this.produceOutputType(field.type),
-        description: getDescription(field),
-        args: this.makeInputValues(field.arguments) as GraphQLFieldConfigArgumentMap,
-        deprecationReason: getDeprecationReason(field.directives),
-        directives: this.makeDirectiveValues(field),
-        resolve: this.getResolver(def, field),
-      }),
+      field => (
+        this.middleware.wrapObjectField(
+          this,
+          def,
+          {
+            type: this.produceOutputType(field.type),
+            description: getDescription(field),
+            args: this.makeInputValues(field.arguments) as GraphQLFieldConfigArgumentMap,
+            deprecationReason: getDeprecationReason(field.directives),
+            directives: this.makeDirectiveValues(field),
+            resolve: this.getResolver(def, field),
+          }
+        )
+      ),
     )
   }
 
@@ -466,13 +637,19 @@ export class SchemaFactory {
     return keyValMap<FieldDefinitionNode, GraphQLFieldConfigExt<mixed, mixed>> (
       def.fields,
       field => field.name.value,
-      field => ({
-        type: this.produceOutputType(field.type),
-        description: getDescription(field),
-        args: this.makeInputValues(field.arguments) as GraphQLFieldConfigArgumentMap,
-        deprecationReason: getDeprecationReason(field.directives),
-        directives: this.makeDirectiveValues(field),
-      }),
+      field => (
+        this.middleware.wrapInterfaceField(
+          this,
+          def,
+          {
+            type: this.produceOutputType(field.type),
+            description: getDescription(field),
+            args: this.makeInputValues(field.arguments) as GraphQLFieldConfigArgumentMap,
+            deprecationReason: getDeprecationReason(field.directives),
+            directives: this.makeDirectiveValues(field),
+          }
+        )
+      ),
     )
   }
 

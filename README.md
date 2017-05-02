@@ -63,6 +63,113 @@ import 'types/Post'
 const schema = factory.getSchema()
 ```
 
+### Factory Middleware
+
+Just like it is useful to have middleware that runs within the time frame of a query execution,
+it is also useful to be able to apply middleware at the schema generation phase. For example, you
+might find that you have a lot of common structures that are used all over a schema with only
+very slight differences. You will see this very often if you are building a Relay compliant
+GraphQL schema. In Relay, you will create Connection & Edge types for many base types in your schema.
+
+Example:
+
+A simple schema without Relay style connections might look like this.
+
+```graphql
+type User {
+  id: ID!
+  name: String!
+}
+
+type Post {
+  id: ID!
+  title: String!
+}
+
+type Query {
+  users: [User]
+  posts: [Post]
+}
+```
+
+And this same conceptual schema with Relay style connections would look like this.
+
+```graphql
+type User {
+  id: ID!
+  name: String!
+}
+
+type UserEdge {
+  node: User
+  cursor: Cursor
+}
+
+type UserConnection {
+  edges: [UserEdge]
+  pageInfo: PageInfo
+}
+
+type Post {
+  id: ID!
+  title: String!
+}
+
+type PostEdge {
+  node: Post
+  cursor: Cursor
+}
+
+type PostConnection {
+  edges: [PostEdge]
+  pageInfo: PageInfo
+}
+
+type PageInfo {
+  hasNextPage: Boolean
+  hasPreviousPage: Boolean
+}
+
+type Query {
+  users: UserConnection
+  posts: PostConnection
+}
+```
+
+As you can see this can be extremely verbose. To help with this, the SchemaFactory takes
+an optional FactoryMiddleware instance in its config that can help automate these tasks.
+
+This library comes with a RelayMiddlware class that you can immediately use to turn simple
+GraphQL schemas into Relay complaint ones. The code below will automatically convert the
+schema document in to the Relay compliant schema demonstrated above.
+
+```javascript
+// The RelayMiddleware takes a function that resolves the node interface.
+const relayMiddleware = new RelayMiddleware(v => (v && v['name']) ? 'User' : 'Post')
+const factory = new SchemaFactory({
+  middleware: relayMiddleware,
+})
+
+factory.extendWithSpec(`
+  type User {
+    id: ID!
+    name: String!
+  }
+
+  type Post {
+    id: ID!
+    title: String!
+  }
+
+  type Query {
+    users: [User]
+    posts: [Post]
+  }
+`)
+
+const schema = factory.getSchema()
+```
+
 ## Query Reducers
 
 It is often useful to be able to do some sort of analysis on a query before it executes. For example,

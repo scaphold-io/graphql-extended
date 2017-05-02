@@ -1,3 +1,6 @@
 export * from './getDeprecationReason'
 export * from './getDescription'
 export * from './leadingSpaces'
+export * from './implementsInterface'
+export * from './getNamedOutputType'
+export * from './isListType'
