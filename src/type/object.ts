@@ -27,7 +27,7 @@ function resolveThunk<T>(thunk: Thunk<T>): T {
   return typeof thunk === 'function' ? thunk() : thunk
 }
 
-interface GraphQLObjectTypeConfigExt<TSource, TContext>
+export interface GraphQLObjectTypeConfigExt<TSource, TContext>
   extends GraphQLObjectTypeConfig<TSource, TContext> {
 
   directives?: Thunk<Array<GraphQLDirectiveValue>>

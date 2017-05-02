@@ -13,7 +13,7 @@ import {
 
 import { extendSchema } from 'graphql/utilities'
 
-type GraphQLSchemaExtConfig = {
+export type GraphQLSchemaExtConfig = {
   query: GraphQLObjectType;
   mutation?: GraphQLObjectType;
   subscription?: GraphQLObjectType;

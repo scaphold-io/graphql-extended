@@ -81,16 +81,9 @@ import { GraphQLExtResolveInfo } from './GraphQLExtResolveInfo'
  * 2) fragment "spreads" e.g. "...c"
  * 3) inline fragment "spreads" e.g. "...on Type { a }"
  */
-
-/**
- * The result of GraphQL execution.
- *
- *   - `data` is the result of a successful execution of the query.
- *   - `errors` is included when any errors occurred as a non-empty array.
- */
-export type ExecutionResult = {
-  data?: {[key: string]: mixed} | null;
-  errors?: Array<GraphQLError>;
+export interface ExecutionResult {
+  data?: {[key: string]: mixed} | null
+  errors?: Array<GraphQLError>
 }
 
 /**
@@ -179,7 +172,7 @@ export function execute({
     // in this case is the entire response.
     ctx.errors.push(error)
     return null
-  }).then(data => {
+  }).then((data: { [key: string]: mixed } | null) => {
     runAfterQueryware(ctx, middlewareContext)
     if (!ctx.errors.length) {
       return { data }

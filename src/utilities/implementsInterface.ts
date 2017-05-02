@@ -7,7 +7,7 @@ import {
 
 export function implementsInterface(
   type: GraphQLOutputType,
-  interfaceName: string
+  interfaceName: string,
 ): boolean  {
   if (type instanceof GraphQLList) {
     return implementsInterface(type.ofType, interfaceName)

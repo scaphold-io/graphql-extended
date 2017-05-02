@@ -1,7 +1,7 @@
 import { Middleware, ResolverContext } from './Middleware'
 import { ExecutionContext } from '../execution/ExecutionContext'
 
-type FieldTimerTimeUnit = 'milli' | 'micro' | 'nano'
+export type FieldTimerTimeUnit = 'milli' | 'micro' | 'nano'
 
 export class ResolverTimer implements Middleware<Map<string, number>, number, mixed> {
 

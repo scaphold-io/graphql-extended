@@ -145,7 +145,7 @@ function getNamedTypeNode(typeNode: TypeNode): NamedTypeNode {
   return namedType
 }
 
-interface SchemaFactoryConfig {
+export interface SchemaFactoryConfig {
   middleware?: FactoryMiddleware
 }
 /**
@@ -625,7 +625,7 @@ export class SchemaFactory {
             deprecationReason: getDeprecationReason(field.directives),
             directives: this.makeDirectiveValues(field),
             resolve: this.getResolver(def, field),
-          }
+          },
         )
       ),
     )
@@ -647,7 +647,7 @@ export class SchemaFactory {
             args: this.makeInputValues(field.arguments) as GraphQLFieldConfigArgumentMap,
             deprecationReason: getDeprecationReason(field.directives),
             directives: this.makeDirectiveValues(field),
-          }
+          },
         )
       ),
     )

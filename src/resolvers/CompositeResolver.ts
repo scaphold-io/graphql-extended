@@ -25,7 +25,7 @@ export function compose<TSource, TOutput>(
   }
 }
 
-type ComposableResolver<TSource, TOutput> =
+export type ComposableResolver<TSource, TOutput> =
   (fn: GraphQLFieldResolver<TSource, TOutput>) => GraphQLFieldResolver<TSource, TOutput>
 
 export function CompositeResolver<TSource, TOutput>(

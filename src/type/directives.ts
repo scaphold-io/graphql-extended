@@ -9,7 +9,7 @@ import {
 /**
  * A decorator is directive specified on the schema.
  */
-type GraphQLDirectiveValueConfig = {
+export type GraphQLDirectiveValueConfig = {
   name: string;
   description?: string;
   args: {
