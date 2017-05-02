@@ -1,7 +1,3 @@
-/**
- * @flow
- */
-
 import { parse } from 'graphql'
 
 import {

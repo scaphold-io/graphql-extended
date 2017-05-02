@@ -1,4 +1,3 @@
-/* @flow */
 /**
  *  Copyright (c) 2015, Facebook, Inc.
  *  All rights reserved.
