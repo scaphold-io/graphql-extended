@@ -11,3 +11,6 @@ mkdir build
 
 echo "Compiling with TypeScript"
 $npm_bin/tsc -d
+
+echo "Compiling .flow.js definition files"
+npm run build-dot-flow
