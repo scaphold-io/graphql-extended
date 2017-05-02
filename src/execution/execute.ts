@@ -94,7 +94,7 @@ type MiddlewareContext = {
   middlewareValues: Array<mixed>;
 }
 
-type ExecutionConfig = {
+export type ExecutionConfig = {
   schema: GraphQLSchema,
   document: DocumentNode,
   rootValue?: mixed,

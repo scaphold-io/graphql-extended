@@ -10,4 +10,4 @@ rm -rf build
 mkdir build
 
 echo "Compiling with TypeScript"
-$npm_bin/tsc
+$npm_bin/tsc -d
