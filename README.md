@@ -165,12 +165,12 @@ const factory = new SchemaFactory({
 })
 
 factory.extendWithSpec(`
-  type User {
+  type User implements Node {
     id: ID!
     name: String!
   }
 
-  type Post {
+  type Post implements Node {
     id: ID!
     title: String!
   }
