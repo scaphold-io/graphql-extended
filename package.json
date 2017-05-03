@@ -7,10 +7,10 @@
   "homepage": "https://scaphold.io",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mlp5ab/graphql-ext"
+    "url": "git+https://github.com/scaphold-io/graphql-extended"
   },
   "bugs": {
-    "url": "https://github.com/mlp5ab/graphql-ext/issues"
+    "url": "https://github.com/scaphold-io/graphql-extended/issues"
   },
   "keywords": [
     "graphql",

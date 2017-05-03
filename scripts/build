@@ -5,6 +5,9 @@ cd $(dirname $0)/..
 
 npm_bin=$(npm bin)
 
+echo "Linting src"
+npm run lint
+
 echo "Cleaning build"
 rm -rf build
 mkdir build
