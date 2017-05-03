@@ -6,11 +6,10 @@
  * Repo: https://github.com/scaphold-io/flowgen
  */
 
-import {
+import type {
     GraphQLResolveInfo,
     GraphQLField
 } from 'graphql';
 export type GraphQLExtResolveInfo = {
-    field: GraphQLField<mixed,
-    mixed >
+    field: GraphQLField<mixed, mixed>
 } & GraphQLResolveInfo

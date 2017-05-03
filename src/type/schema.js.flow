@@ -12,8 +12,10 @@ import {
 import {
     GraphQLSchema,
     GraphQLObjectType,
-    GraphQLNamedType,
     GraphQLDirective
+} from 'graphql/type';
+import type {
+    GraphQLNamedType,
 } from 'graphql/type';
 import {
     extendSchema

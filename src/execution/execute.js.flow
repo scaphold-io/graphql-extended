@@ -27,6 +27,14 @@ import {
 } from './values';
 import {
     GraphQLSchema,
+    GraphQLEnumType,
+    GraphQLObjectType,
+    GraphQLList,
+    GraphQLNonNull,
+    GraphQLInterfaceType,
+    GraphQLUnionType,
+} from 'graphql'
+import type {
     GraphQLType,
     GraphQLLeafType,
     GraphQLAbstractType,
@@ -35,12 +43,6 @@ import {
     GraphQLResolveInfo,
     ResponsePath,
     GraphQLScalarType,
-    GraphQLObjectType,
-    GraphQLEnumType,
-    GraphQLList,
-    GraphQLNonNull,
-    GraphQLInterfaceType,
-    GraphQLUnionType,
     isAbstractType,
     GraphQLOutputType
 } from 'graphql/type';
@@ -53,7 +55,7 @@ import {
     GraphQLIncludeDirective,
     GraphQLSkipDirective
 } from 'graphql/type/directives';
-import {
+import type {
     DirectiveNode,
     DocumentNode,
     OperationDefinitionNode,
@@ -64,19 +66,22 @@ import {
 } from 'graphql/language/ast';
 import {
     QueryReducer
-} from './queryReducer';
+} from './QueryReducer';
 import {
     Middleware
 } from '../middleware/Middleware';
-import {
+import type {
     ExecutionContext
 } from './ExecutionContext';
-import {
+import type {
     GraphQLExtResolveInfo
 } from './GraphQLExtResolveInfo';
+
+declare type MaybePromise<T> = Promise<T> | T
+
 /**
  * Terminology
- * 
+ *
 "Definitions" are the generic name for top-level statements in the document.
 Examples of this include:
 1) Operations (such as a query)
@@ -125,7 +130,7 @@ export type ExecutionConfig = {
 };
 /**
  * Implements the "Evaluating requests" section of the GraphQL specification.
- * 
+ *
 Returns a Promise that will eventually be resolved and never rejected.
 
 If the arguments to this function do not result in a legal execution context,

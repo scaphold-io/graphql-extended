@@ -7,9 +7,11 @@
  */
 
 import {
-    GraphQLOutputType,
     GraphQLList,
     GraphQLNonNull,
     GraphQLObjectType
+} from 'graphql';
+import type {
+    GraphQLOutputType,
 } from 'graphql';
 declare export function implementsInterface(type: GraphQLOutputType, interfaceName: string): boolean;

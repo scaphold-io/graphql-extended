@@ -6,16 +6,16 @@
  * Repo: https://github.com/scaphold-io/flowgen
  */
 
-import {
+import type {
     ObjectTypeDefinitionNode,
     InterfaceTypeDefinitionNode,
     EnumTypeDefinitionNode,
     UnionTypeDefinitionNode,
     ScalarTypeDefinitionNode,
     InputObjectTypeDefinitionNode,
-    GraphQLSchema
 } from 'graphql';
-import {
+import { GraphQLSchema } from 'graphql';
+import type {
     GraphQLFieldConfigExt
 } from '../type/object';
 import {

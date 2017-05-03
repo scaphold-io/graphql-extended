@@ -12,21 +12,30 @@ import {
 import {
     GraphQLDirectiveValue
 } from '../type/directives';
-import {
+import type {
     GraphQLExtResolveInfo
 } from '../execution/GraphQLExtResolveInfo';
-import {
+import type {
     GraphQLFieldExt
 } from '../type/object';
-declare export default class DirectiveCollector<ReducedDirective>mixins QueryReducer<Array<ReducedDirective>, Object>{
+
+declare export default class DirectiveCollector<ReducedDirective> extends QueryReducer<Array<ReducedDirective>, Object> {
+
     initial: Array<ReducedDirective>;
+
     constructor(handleDirective: (directive: GraphQLDirectiveValue) => ReducedDirective, reduceContext: (acc: Array<ReducedDirective>, ctx: Object) => Object): this;
+
     reduceField(
         parent: Array<ReducedDirective>,
         child: Array<ReducedDirective>,
-        _ctx: mixed,
-        info: GraphQLExtResolveInfo): Array<ReducedDirective>;
+        ctx: mixed,
+        info: GraphQLExtResolveInfo
+    ): Array<ReducedDirective>;
+
     reduceScalar(): Array<ReducedDirective>;
+
     reduceEnum(): Array<ReducedDirective>;
+
     reduceCtx(acc: Array<ReducedDirective>, ctx: Object): Object
+
 }

@@ -33,7 +33,7 @@ import * as Kind from 'graphql/language/kinds';
 import {
     print
 } from 'graphql/language/printer';
-import {
+import type {
     GraphQLInputType,
     GraphQLField
 } from 'graphql/type/definition';
@@ -43,7 +43,7 @@ import {
 import {
     GraphQLSchema
 } from 'graphql/type/schema';
-import {
+import type {
     FieldNode,
     DirectiveNode,
     VariableDefinitionNode

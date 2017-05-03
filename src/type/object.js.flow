@@ -6,31 +6,35 @@
  * Repo: https://github.com/scaphold-io/flowgen
  */
 
+declare type Thunk<T> = T | () => T
+
+import type {
+    GraphQLObjectTypeConfig,
+    GraphQLFieldConfig,
+    GraphQLField,
+} from 'graphql/type';
 import {
     GraphQLObjectType,
     GraphQLDirective,
-    GraphQLObjectTypeConfig,
-    GraphQLFieldConfig,
-    GraphQLField
 } from 'graphql/type';
 import {
     GraphQLDirectiveValue
 } from './directives';
 import invariant from '../jsutils/invariant';
 declare function resolveThunk<T>(thunk: Thunk<T>): T;
-export type GraphQLObjectTypeConfigExt<TSource, TContext>= {
+export type GraphQLObjectTypeConfigExt<TSource, TContext> = {
     directives?: Thunk<Array<GraphQLDirectiveValue >>
-} & GraphQLObjectTypeConfig
+} & GraphQLObjectTypeConfig<TSource, TContext>
 export interface GraphQLFieldConfigMapExt<TSource, TContext>{
     [fieldName: string]: GraphQLFieldConfigExt<TSource,
     TContext >
 }
-export type GraphQLFieldConfigExt<TSource, TContext>= {
+export type GraphQLFieldConfigExt<TSource, TContext> = {
     directives: Array<GraphQLDirectiveValue >
-} & GraphQLFieldConfig
-export type GraphQLFieldExt<TSource, TContext>= {
+} & GraphQLFieldConfig<TSource, TContext>
+export type GraphQLFieldExt<TSource, TContext> = {
     directives: Array<GraphQLDirectiveValue >
-} & GraphQLField
+} & GraphQLField<TSource, TContext>
 
 /**
  * The schemata is an extension of a GraphQLSchema that includes extra

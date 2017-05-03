@@ -10,11 +10,11 @@ import {
     Middleware,
     ResolverContext
 } from './Middleware';
-import {
+import type {
     ExecutionContext
 } from '../execution/ExecutionContext';
-export type FieldTimerTimeUnit = milli | micro | nano;
-declare export class ResolverTimer mixins Middleware<Map<string, number>, number, mixed>{
+export type FieldTimerTimeUnit = 'milli' | 'micro' | 'nano';
+declare export class ResolverTimer extends Middleware<Map<string, number>, number, mixed>{
     constructor(logger: (totalRunTime: number, resolverDurationMap: Map<string, number>) => mixed | void, timeUnit: FieldTimerTimeUnit): this;
     beforeQuery(): Map<string,
     number>;

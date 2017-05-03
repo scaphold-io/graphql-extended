@@ -24,7 +24,7 @@ import {
 import {
     getArgumentValues
 } from '../execution/values';
-import {
+import type {
     GraphQLTypeResolver,
     GraphQLFieldResolver,
     GraphQLError
@@ -42,7 +42,7 @@ import {
     INPUT_OBJECT_TYPE_DEFINITION,
     DIRECTIVE_DEFINITION
 } from 'graphql/language/kinds';
-import {
+import type {
     Location,
     DocumentNode,
     DirectiveNode,
@@ -70,7 +70,7 @@ import {
     GraphQLBoolean,
     GraphQLID
 } from 'graphql/type/scalars';
-import {
+import type {
     GraphQLType,
     GraphQLNamedType,
     GraphQLInputType,
@@ -78,7 +78,7 @@ import {
     GraphQLInputFieldConfigMap,
     GraphQLFieldConfigArgumentMap
 } from 'graphql/type/definition';
-import {
+import type {
     GraphQLFieldConfigMapExt,
     GraphQLFieldConfigExt
 } from '../type/object';
@@ -89,20 +89,19 @@ import {
     GraphQLDeprecatedDirective
 } from 'graphql/type/directives';
 import {
-    GraphQLRelationDirective,
     GraphQLDirectiveValue
 } from '../type/directives';
 import {
-    ___Schema,
-    ___Directive,
-    ___DirectiveLocation,
-    ___Type,
-    ___Field,
-    ___InputValue,
-    ___EnumValue,
-    ___TypeKind
+    __Schema,
+    __Directive,
+    __DirectiveLocation,
+    __Type,
+    __Field,
+    __InputValue,
+    __EnumValue,
+    __TypeKind
 } from 'graphql/type/introspection';
-import {
+import type {
     TypeResolverMap
 } from './ResolverMap';
 declare function buildWrappedType(innerType: GraphQLType, inputTypeNode: TypeNode): GraphQLType;

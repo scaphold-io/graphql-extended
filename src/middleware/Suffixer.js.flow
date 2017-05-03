@@ -10,13 +10,13 @@ import {
     Middleware,
     ResolverContext
 } from './Middleware';
-import {
+import type {
     ExecutionContext
 } from '../execution/ExecutionContext';
 import {
     GraphQLScalarType
 } from 'graphql/type';
-declare export class Suffixer mixins Middleware<Map<string, number>, number, mixed>{
+declare export class Suffixer extends Middleware<Map<string, number>, number, mixed>{
     constructor(suffix: string): this;
     beforeQuery(): Map<string,
     number>;

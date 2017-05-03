@@ -6,13 +6,10 @@
  * Repo: https://github.com/scaphold-io/flowgen
  */
 
-import {
-    GraphQLFieldResolver
-} from 'graphql';
-declare export function compose<TSource, TOutput>(
-    ...funcs: Array<ComposableResolver<TSource, TOutput >> ): ComposableResolver<TSource, TOutput>;
-export type ComposableResolver<TSource, TOutput>= (
-    fn: GraphQLFieldResolver<TSource, TOutput>) => GraphQLFieldResolver<TSource, TOutput>;
-declare export function CompositeResolver<TSource, TOutput>(
-    ...funcs: Array<ComposableResolver<TSource, TOutput >> ): (
-    resolver: GraphQLFieldResolver<TSource, TOutput>) => GraphQLFieldResolver<TSource, TOutput>;
+import type { GraphQLFieldResolver } from 'graphql';
+
+declare type ComposableResolver<TSource, TOutput> = (fn: GraphQLFieldResolver<TSource, TOutput>) => GraphQLFieldResolver<TSource, TOutput>;
+
+declare export function compose<TSource, TOutput>(...funcs: Array<ComposableResolver<TSource, TOutput>>): ComposableResolver<TSource, TOutput>;
+
+declare export function CompositeResolver<TSource, TOutput>(...funcs: Array<ComposableResolver<TSource, TOutput >>): (resolver: GraphQLFieldResolver<TSource, TOutput>) => GraphQLFieldResolver<TSource, TOutput>;

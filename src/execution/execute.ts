@@ -57,7 +57,7 @@ import {
   FragmentDefinitionNode,
 } from 'graphql/language/ast'
 
-import { QueryReducer } from './queryReducer'
+import { QueryReducer } from './QueryReducer'
 import { Middleware } from '../middleware/Middleware'
 import { ExecutionContext } from './ExecutionContext'
 import { GraphQLExtResolveInfo } from './GraphQLExtResolveInfo'

@@ -7,8 +7,10 @@
  */
 
 import {
-    GraphQLOutputType,
     GraphQLList,
     GraphQLNonNull
+} from 'graphql';
+import type {
+    GraphQLOutputType,
 } from 'graphql';
 declare export function isListType(type: GraphQLOutputType): boolean;

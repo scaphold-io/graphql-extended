@@ -9,7 +9,7 @@
 import {
     GraphQLDeprecatedDirective
 } from 'graphql/type';
-import {
+import type {
     DirectiveNode
 } from 'graphql/language';
 import find from '../jsutils/find';

@@ -6,8 +6,10 @@
  * Repo: https://github.com/scaphold-io/flowgen
  */
 
-import {
+import type {
     Location,
+} from 'graphql/language';
+import {
     TokenKind
 } from 'graphql/language';
 import {

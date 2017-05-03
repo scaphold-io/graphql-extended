@@ -6,10 +6,10 @@
  * Repo: https://github.com/scaphold-io/flowgen
  */
 
-import {
+import type {
     GraphQLExtResolveInfo
 } from '../execution/GraphQLExtResolveInfo';
-import {
+import type {
     ExecutionContext
 } from '../execution/ExecutionContext';
 export interface Middleware<MiddlewareValue, FieldValue, Ctx>{
@@ -39,7 +39,7 @@ export interface Middleware<MiddlewareValue, FieldValue, Ctx>{
 
     /**
      * Run for each field directly after field resolution.
-     * 
+     *
     Returning a value from this method will change the output for the resolution
     */
     afterField(

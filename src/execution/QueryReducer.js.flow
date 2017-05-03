@@ -6,13 +6,15 @@
  * Repo: https://github.com/scaphold-io/flowgen
  */
 
-import {
-    GraphQLResolveInfo,
+import type {
     ResponsePath
 } from 'graphql';
+import type {
+    GraphQLExtResolveInfo
+} from './GraphQLExtResolveInfo'
 export interface QueryReducer<Acc, Ctx>{
     initial: Acc,
-    reduceField(parentAcc: Acc, childAcc: Acc, ctx: Ctx, info: GraphQLResolveInfo): Acc,
+    reduceField(parentAcc: Acc, childAcc: Acc, ctx: Ctx, info: GraphQLExtResolveInfo): Acc,
     reduceScalar(path: ResponsePath, acc: Acc, ctx: Ctx): Acc,
     reduceEnum(path: ResponsePath, acc: Acc, ctx: Ctx): Acc,
     reduceCtx(acc: Acc, ctx: Ctx): Ctx

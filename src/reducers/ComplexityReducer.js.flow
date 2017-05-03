@@ -9,7 +9,7 @@
 import {
     QueryReducer
 } from '../execution/QueryReducer';
-declare export default class ComplexityReducer mixins QueryReducer<number, Object>{
+declare export default class ComplexityReducer extends QueryReducer<number, Object>{
     initial: number;
     constructor(): this;
     reduceField(parent: number, child: number): number;

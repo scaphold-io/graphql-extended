@@ -31,6 +31,3 @@ declare export class GraphQLDirectiveValue {
     constructor(config: GraphQLDirectiveValueConfig): this;
     get(key: string): mixed
 }
-declare export var RelationKind: ;
-declare var RelationKindEnum: ;
-declare export var GraphQLRelationDirective: ;

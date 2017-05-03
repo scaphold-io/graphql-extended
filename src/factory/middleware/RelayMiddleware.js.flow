@@ -9,25 +9,28 @@
 import {
     FactoryMiddleware
 } from '../FactoryMiddleware';
-import {
+import type {
     GraphQLFieldConfigExt
 } from '../../type/object';
 import {
     SchemaFactory
 } from '../SchemaFactory';
-import {
+import type {
     ObjectTypeDefinitionNode,
     GraphQLTypeResolver,
+} from 'graphql';
+import {
     GraphQLScalarType,
     Kind
 } from 'graphql';
+import type {
+    GraphQLNamedOutputType,
+} from '../../utilities'
 import {
     implementsInterface,
     getNamedOutputType,
-    GraphQLNamedOutputType,
     isListType
 } from '../../utilities';
-declare export var GraphQLCursor: ;
 declare function connectionSpec(def: ObjectTypeDefinitionNode): string;
 /**
  * Creates Connection & Edge types for all Node implementing types. This middleware

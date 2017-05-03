@@ -7,7 +7,6 @@
  */
 
 import {
-    GraphQLOutputType,
     GraphQLList,
     GraphQLNonNull,
     GraphQLScalarType,
@@ -16,6 +15,9 @@ import {
     GraphQLUnionType,
     GraphQLEnumType
 } from 'graphql';
+import type {
+    GraphQLOutputType,
+} from 'graphql';
 export type GraphQLNamedOutputType = GraphQLScalarType |
     GraphQLObjectType |
     GraphQLInterfaceType |
@@ -23,6 +25,6 @@ export type GraphQLNamedOutputType = GraphQLScalarType |
     GraphQLEnumType;
 /**
  * Given a GraphQLOutputType returns the underlying Object, Scalar, Union, Interface, or Enum.
- * @param type 
+ * @param type
  */
 declare export function getNamedOutputType(type: GraphQLOutputType): GraphQLNamedOutputType;

@@ -6,7 +6,7 @@
  * Repo: https://github.com/scaphold-io/flowgen
  */
 
-import {
+import type {
     GraphQLResolveInfo
 } from 'graphql';
 declare export function Identity(source: mixed, _a: mixed, _c: mixed, info: GraphQLResolveInfo): mixed;
