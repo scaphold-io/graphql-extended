@@ -1,0 +1,10 @@
+#!/bin/bash
+
+TYPE_FILE=types.js.flow
+rm $TYPE_FILE
+
+find ./build -name '*.d.ts' -not -path '*/__tests__*' |
+  while read filepath; do
+    flowgen-test $filepath -o `echo $filepath | sed 's/\\.d\\.ts/\\.js/g'`.flow;
+    cat `echo $filepath | sed 's/\\.d\\.ts/\\.js/g'`.flow >> $TYPE_FILE
+  done
