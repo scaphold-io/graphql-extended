@@ -289,6 +289,17 @@ export class SchemaFactory {
   }
 
   /**
+   * Getters
+   */
+  get nodes(): Array<TypeDefinitionNode> {
+    return this.nodeMap.valueSeq().toArray()
+  }
+
+  get types(): Array<GraphQLNamedType> {
+    return this.typeMap.valueSeq().toArray()
+  }
+
+  /**
    * Add a single object type to the schema.
    * @param spec A single type declaration as GraphQL schema IDL
    * @param resolvers An object with field names for keys and GraphQLFieldResolver functions as values.

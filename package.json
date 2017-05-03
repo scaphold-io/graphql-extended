@@ -38,6 +38,7 @@
     "build-dot-flow": "find ./build -name '*.d.ts' -not -path '*/__tests__*' | while read filepath; do flowgen $filepath -o `echo $filepath | sed 's/\\.d\\.ts/\\.js/g'`.flow; done",
     "src-dot-flow": "find ./src -name '*.ts' -not -path '*/__tests__*' | while read filepath; do flowgen-test $filepath -o `echo $filepath | sed 's/\\.ts/\\.js/g'`.flow.tmp; done",
     "cp-dot-flow": "find ./src -name '*.js.flow' -not -path '*/__tests__*' | while read filepath; do cp $filepath `echo $filepath | sed 's/\\/src\\//\\/build\\//g'`; done",
+    "rm-dot-flow": "find ./src -name '*.js.flow' -not -path '*/__tests__*' | while read filepath; do rm $filepath; done",
     "gen-dot-flow": "find ./src -name '*.ts' -not -path '*/__tests__*' | while read filepath; do flowgen $filepath `echo $filepath | sed 's/\\/src\\//\\/build\\//g'`; done"
   },
   "dependencies": {
