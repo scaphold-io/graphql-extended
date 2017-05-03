@@ -108,7 +108,7 @@ type User implements Node {
 
 type UserEdge {
   node: User
-  cursor: Cursor
+  cursor: String
 }
 
 type UserConnection {
@@ -123,7 +123,7 @@ type Post implements Node {
 
 type PostEdge {
   node: Post
-  cursor: Cursor
+  cursor: String
 }
 
 type PostConnection {

@@ -18,19 +18,6 @@ import {
   isListType,
 } from '../../utilities'
 
-export const GraphQLCursor = new GraphQLScalarType({
-  name: 'Cursor',
-  description:
-    'The `Cursor` scalar type represents an opaque pointer to an object in a ' +
-    'sequence, represented as UTF-8 ' +
-    'character sequences.',
-  serialize: String,
-  parseValue: String,
-  parseLiteral(ast): mixed {
-    return ast.kind === Kind.STRING ? ast.value : null
-  },
-})
-
 function connectionSpec(def: ObjectTypeDefinitionNode): string {
   const edgeName = `${def.name.value}Edge`
   const connectionName = `${def.name.value}Connection`
@@ -44,7 +31,7 @@ function connectionSpec(def: ObjectTypeDefinitionNode): string {
     # Connection edge wrapper for the ${def.name.value} named type
     type ${edgeName} {
       node: ${def.name.value}
-      cursor: Cursor
+      cursor: String
     }
   `
 }
@@ -63,9 +50,6 @@ export class RelayMiddleware extends FactoryMiddleware {
    * Add the Node interface and PageInfo and Cursor types
    */
   public beforeBuild(factory: SchemaFactory): void {
-    factory.extendWithTypes([
-      GraphQLCursor,
-    ])
     factory.createInterface(`
       # The Node interface denotes a distinct entity in the schema. Types that implement
       # the Node interface abide by the Relay connection spec are receive Connection & Edge types.
@@ -78,8 +62,8 @@ export class RelayMiddleware extends FactoryMiddleware {
       type PageInfo {
         hasPreviousPage: Boolean!
         hasNextPage: Boolean!
-        first: Cursor
-        last: Cursor
+        startCursor: String
+        endCursor: String
       }
     `)
   }
