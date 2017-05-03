@@ -1,10 +1,70 @@
 #!/bin/bash
 
+FILE_PREFIX_1="import {
+  GraphQLError,
+  GraphQLSchema,
+  GraphQLDirective,
+  GraphQLEnumType,
+  GraphQLUnionType,
+  GraphQLScalarType,
+  GraphQLInterfaceType,
+  GraphQLInputObjectType,
+  GraphQLObjectType
+} from 'graphql'
+"
+FILE_PREFIX_2="import type {
+  Source,
+  TypeResolverMap,
+  GraphQLOutputType,
+  GraphQLFieldConfig,
+  GraphQLObjectTypeConfig,
+  GraphQLResolveInfo,
+  DocumentNode,
+  UnionTypeDefinitionNode,
+  OperationDefinitionNode,
+  ScalarTypeDefinitionNode,
+  FragmentDefinitionNode,
+  VariableDefinitionNode,
+  SchemaDefinitionNode,
+  GraphQLTypeResolver,
+  GraphQLNamedType,
+  TypeDefinitionNode,
+  GraphQLFieldResolver,
+  ResponsePath,
+  GraphQLField,
+  FieldNode,
+  DirectiveNode,
+  ObjectTypeDefinitionNode,
+  InterfaceTypeDefinitionNode,
+  EnumTypeDefinitionNode,
+  InputObjectTypeDefinitionNode,
+  TypeNode,
+  GraphQLType,
+  GraphQLInputType,
+  ValueNode,
+  DirectiveDefinitionNode,
+  FieldDefinitionNode,
+  InputValueDefinitionNode
+} from 'graphql'
+"
+FILE_PREFIX_3="declare type Thunk<T> = T | () => T"
+FILE_PREFIX_4="declare module 'graphql-extended' {"
+
+FILE_SUFFIX="}"
+
 TYPE_FILE=types.js.flow
 rm $TYPE_FILE
+
+echo $FILE_PREFIX_1 > $TYPE_FILE
+echo $FILE_PREFIX_2 >> $TYPE_FILE
+echo $FILE_PREFIX_3 >> $TYPE_FILE
+echo $FILE_PREFIX_4 >> $TYPE_FILE
 
 find ./build -name '*.d.ts' -not -path '*/__tests__*' |
   while read filepath; do
     flowgen-test $filepath -o `echo $filepath | sed 's/\\.d\\.ts/\\.js/g'`.flow;
     cat `echo $filepath | sed 's/\\.d\\.ts/\\.js/g'`.flow >> $TYPE_FILE
+    echo $'\n' >> $TYPE_FILE
   done
+
+echo $FILE_SUFFIX >> $TYPE_FILE

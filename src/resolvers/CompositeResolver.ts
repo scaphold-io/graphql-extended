@@ -1,5 +1,8 @@
 import { GraphQLFieldResolver } from 'graphql'
 
+export type ComposableResolver<TSource, TOutput> =
+  (fn: GraphQLFieldResolver<TSource, TOutput>) => GraphQLFieldResolver<TSource, TOutput>
+
 export function compose<TSource, TOutput>(
   ...funcs: Array<ComposableResolver<TSource, TOutput>>,
 ): ComposableResolver<TSource, TOutput> {
@@ -24,9 +27,6 @@ export function compose<TSource, TOutput>(
     return result
   }
 }
-
-export type ComposableResolver<TSource, TOutput> =
-  (fn: GraphQLFieldResolver<TSource, TOutput>) => GraphQLFieldResolver<TSource, TOutput>
 
 export function CompositeResolver<TSource, TOutput>(
   ...funcs: Array<ComposableResolver<TSource, TOutput>>,

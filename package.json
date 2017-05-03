@@ -51,7 +51,7 @@
     "@types/immutable": "^3.8.7",
     "@types/jest": "^19.2.2",
     "@types/node": "^6.0.38",
-    "flowgen-test": "^1.2.4",
+    "flowgen-test": "^1.2.15",
     "graphql": "^0.9.3",
     "install": "^0.8.7",
     "jest": "^19.0.2",
