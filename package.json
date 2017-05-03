@@ -35,11 +35,7 @@
     "coverage": "jest --coverage",
     "check": "npm run lint && npm run test",
     "patch-release": "npm version patch && npm publish && git push --follow-tags",
-    "build-dot-flow": "find ./build -name '*.d.ts' -not -path '*/__tests__*' | while read filepath; do flowgen $filepath -o `echo $filepath | sed 's/\\.d\\.ts/\\.js/g'`.flow; done",
-    "src-dot-flow": "find ./src -name '*.ts' -not -path '*/__tests__*' | while read filepath; do flowgen-test $filepath -o `echo $filepath | sed 's/\\.ts/\\.js/g'`.flow.tmp; done",
-    "cp-dot-flow": "find ./src -name '*.js.flow' -not -path '*/__tests__*' | while read filepath; do cp $filepath `echo $filepath | sed 's/\\/src\\//\\/build\\//g'`; done",
-    "rm-dot-flow": "find ./src -name '*.js.flow' -not -path '*/__tests__*' | while read filepath; do rm $filepath; done",
-    "gen-dot-flow": "find ./src -name '*.ts' -not -path '*/__tests__*' | while read filepath; do flowgen $filepath `echo $filepath | sed 's/\\/src\\//\\/build\\//g'`; done"
+    "build-dot-flow": "./scripts/build-types"
   },
   "dependencies": {
     "graphql": "^0.9.3",
@@ -52,7 +48,6 @@
     "@types/immutable": "^3.8.7",
     "@types/jest": "^19.2.2",
     "@types/node": "^6.0.38",
-    "flowgen-test": "^1.2.15",
     "graphql": "^0.9.3",
     "install": "^0.8.7",
     "jest": "^19.0.2",

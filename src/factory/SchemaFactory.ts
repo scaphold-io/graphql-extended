@@ -244,13 +244,13 @@ export class SchemaFactory {
         }
       })
     } else {
-      if (this.nodeMap.has('Query')) {
+      if (this.nodeMap.has('Query') || this.typeMap.has('Query')) {
         queryTypeName = 'Query'
       }
-      if (this.nodeMap.has('Mutation')) {
+      if (this.nodeMap.has('Mutation') || this.typeMap.has('Mutation')) {
         mutationTypeName = 'Mutation'
       }
-      if (this.nodeMap.has('Subscription')) {
+      if (this.nodeMap.has('Subscription') || this.typeMap.has('Subscription')) {
         subscriptionTypeName = 'Subscription'
       }
     }
@@ -267,12 +267,12 @@ export class SchemaFactory {
 
     return this.middleware.afterBuild(
       new GraphQLSchema({
-        query: this.getObjectType(this.nodeMap.get(queryTypeName)),
+        query: this.getObjectTypeNamed(queryTypeName),
         mutation: mutationTypeName ?
-          this.getObjectType(this.nodeMap.get(mutationTypeName)) :
+          this.getObjectTypeNamed(mutationTypeName) :
           undefined,
         subscription: subscriptionTypeName ?
-          this.getObjectType(this.nodeMap.get(subscriptionTypeName)) :
+          this.getObjectTypeNamed(subscriptionTypeName) :
           undefined,
         types,
         directives,
@@ -495,6 +495,15 @@ export class SchemaFactory {
       ),
       args: directiveNode.arguments && this.makeInputValues(directiveNode.arguments) as GraphQLFieldConfigArgumentMap,
     })
+  }
+
+  protected getObjectTypeNamed(name: string): GraphQLObjectType {
+    const type = this.typeDefNamed(name)
+    invariant(
+      type instanceof GraphQLObjectType,
+      'AST must provide object type.',
+    )
+    return type as GraphQLObjectType
   }
 
   protected getObjectType(typeNode: TypeDefinitionNode): GraphQLObjectType {

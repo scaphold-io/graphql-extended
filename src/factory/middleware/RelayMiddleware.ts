@@ -8,8 +8,6 @@ import { SchemaFactory } from '../SchemaFactory'
 import {
   ObjectTypeDefinitionNode,
   GraphQLTypeResolver,
-  GraphQLScalarType,
-  Kind,
 } from 'graphql'
 import {
   implementsInterface,
