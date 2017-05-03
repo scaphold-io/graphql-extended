@@ -1683,9 +1683,9 @@ findup-sync@~0.3.0:
   dependencies:
     glob "~5.0.0"
 
-flowgen-test@^1.2.3:
-  version "1.2.3"
-  resolved "https://registry.yarnpkg.com/flowgen-test/-/flowgen-test-1.2.3.tgz#e3188efb55bea0d7820c142030c7193c1d0e8152"
+flowgen-test@^1.2.4:
+  version "1.2.4"
+  resolved "https://registry.yarnpkg.com/flowgen-test/-/flowgen-test-1.2.4.tgz#b4b9f8ac89d84dd16f3a48e224e5ce7e160a3e9b"
   dependencies:
     babel-cli "6.18.0"
     babel-preset-es2015 "6.18.0"
