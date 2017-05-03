@@ -41,6 +41,7 @@ test('Create a factory w/ relay middleware and check for transformations', () =>
   expect(schema.getType('PostEdge')).toBeTruthy()
   expect(schema.getType('UserConnection')).toBeTruthy()
   expect(schema.getType('UserEdge')).toBeTruthy()
+  expect(schema.getType('Cursor')).toBeTruthy()
 
   // Was the Query.users array of Node types replaced with the Connection?
   const userField = (schema.getType('Query') as GraphQLObjectType).getFields()['users']

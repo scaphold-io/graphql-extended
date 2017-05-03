@@ -93,10 +93,6 @@ import {
 } from 'graphql/type/directives'
 
 import {
-  GraphQLRelationDirective,
-} from '../type/directives'
-
-import {
   GraphQLFieldConfigMapExt,
   GraphQLFieldConfigExt,
 } from '../type/object'
@@ -419,10 +415,11 @@ export class SchemaFactory {
    * @param types
    */
   public extendWithTypes(types: Array<GraphQLNamedType>): SchemaFactory {
+    const that = this
     types.forEach(type => {
-      this.typeMap = this.typeMap.set(type.name, type)
+      that.typeMap = that.typeMap.set(type.name, type)
     })
-    return this
+    return that
   }
 
   /**
@@ -546,10 +543,11 @@ export class SchemaFactory {
   }
 
   protected produceDirectiveValue(directiveNode: DirectiveNode): GraphQLDirectiveValue {
+    const directive = this.directiveMap.get(directiveNode.name.value)
     return new GraphQLDirectiveValue({
       name: directiveNode.name.value,
       description: getDescription(directiveNode),
-      args: getArgumentValues(GraphQLRelationDirective, directiveNode),
+      args: getArgumentValues(directive, directiveNode),
     })
   }
 
