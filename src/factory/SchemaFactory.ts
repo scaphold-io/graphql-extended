@@ -284,6 +284,14 @@ export class SchemaFactory {
     return this.typeDefNamed(name)
   }
 
+  public hasType(name: string): boolean {
+    return this.typeMap.has(name)
+  }
+
+  public hasDefinition(name: string): boolean {
+    return this.nodeMap.has(name)
+  }
+
   /**
    * Getters
    */

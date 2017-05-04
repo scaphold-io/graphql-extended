@@ -432,6 +432,8 @@ declare export class SchemaFactory {
         GraphQLSchema;
     getType(name: string):
         GraphQLNamedType;
+    hasType(name: string): boolean;
+    hasDefinition(name: string): boolean;
 
     /**
      * Getters
