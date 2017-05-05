@@ -4,7 +4,6 @@ import {
   GraphQLFieldConfig,
   GraphQLField,
 } from 'graphql/type'
-
 import {
   GraphQLDirectiveValue,
 } from './directives'
@@ -101,6 +100,10 @@ export class GraphQLObjectTypeExt extends GraphQLObjectType {
   //     defineFieldMap(this, this._typeConfig.fields)
   //   )
   // }
+
+  get config(): GraphQLObjectTypeConfigExt<mixed, mixed> {
+    return this._typeConfig
+  }
 
   public getDirectives(): Array<GraphQLDirectiveValue> {
     return this._directives || (this._directives =
