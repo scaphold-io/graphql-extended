@@ -268,9 +268,8 @@ declare export class FactoryMiddleware {
 
     /**
      * Executed before the schema is built. This is useful for manipulating the
-     * AST nodes before they are converted into GraphQL types. Middleware is
-    restricted to work on AST nodes instead of types. This is because type members
-    are often thunks and it can introduce problems to try to resolve them out of order.
+     * AST nodes before they are converted into GraphQL types. These middleware methods
+    operate on the AST nodes before they are built into full GraphQL types.
      * @param nodeMap And ImmutableJS Map containing the AST definition nodes.
      * @return  The augmented nodeMap
     */
@@ -329,7 +328,62 @@ declare export class FactoryMiddleware {
             SchemaFactory,
             definition:
             InputObjectTypeDefinitionNode):
-        InputObjectTypeDefinitionNode
+        InputObjectTypeDefinitionNode;
+
+    /**
+     * Executed before the schema is built. This is useful for manipulating the GraphQL types before
+     * they are committed to the factory cache.
+     * @param nodeMap And ImmutableJS Map containing the AST definition nodes.
+     * @return  The augmented nodeMap
+     */
+    wrapObjectType(_factory:
+            SchemaFactory, object:
+            GraphQLObjectTypeExt):
+        GraphQLObjectTypeExt;
+
+    /**
+     * Wrap an interface type or interact with the factory.
+     */
+    wrapInterfaceType(
+            _factory:
+            SchemaFactory,
+            interfce:
+            GraphQLInterfaceType):
+        GraphQLInterfaceType;
+
+    /**
+     * Wrap an enum type or interact with the factory.
+     */
+    wrapEnumType(_factory:
+            SchemaFactory, enm:
+            GraphQLEnumType):
+        GraphQLEnumType;
+
+    /**
+     * Wrap an union type or interact with the factory.
+     */
+    wrapUnionType(_factory:
+            SchemaFactory, union:
+            GraphQLUnionType):
+        GraphQLUnionType;
+
+    /**
+     * Wrap an scalar type or interact with the factory.
+     */
+    wrapScalarType(_factory:
+            SchemaFactory, sclr:
+            GraphQLScalarType):
+        GraphQLScalarType;
+
+    /**
+     * Wrap an input type or interact with the factory.
+     */
+    wrapInputType(
+            _factory:
+            SchemaFactory,
+            inpt:
+            GraphQLInputObjectType):
+        GraphQLInputObjectType
 }
 
 /**
@@ -396,7 +450,21 @@ declare export class RelayMiddleware {
  */
 declare export interface SchemaFactoryConfig {
     middleware ? :
-        FactoryMiddleware
+        FactoryMiddleware,
+        onResolverCollision?: (
+            oldFn:
+            FieldResolverMap,
+            newFn:
+            FieldResolverMap,
+            key: string) =>
+        FieldResolverMap,
+        onTypeCollision?: (
+            oldType:
+            GraphQLNamedType,
+            newType:
+            GraphQLNamedType,
+            key: string) =>
+        GraphQLNamedType
 }
 /**
  * A base class that handles managing and building GraphQL schemas
@@ -444,6 +512,16 @@ declare export class SchemaFactory {
     types:
         Array <
         GraphQLNamedType>;
+
+    /**
+     * Add resolvers to the resolver map. These resolvers will get merged into types
+     * when you call getSchema().
+     */
+    addResolveFunctionsToSchema(resolvers ? :
+            TypeResolverMap <
+            mixed,
+            mixed>):
+        SchemaFactory;
 
     /**
      * Add a single object type to the schema.
@@ -1003,7 +1081,8 @@ declare export var GraphQLRelationDirective:
 declare export type GraphQLObjectTypeConfigExt<TSource, TContext>= {
     directives?: Thunk <
         Array <
-        GraphQLDirectiveValue >>
+        GraphQLDirectiveValue >> ,
+    [extraField: string]: mixed
 } & GraphQLObjectTypeConfig
 declare export interface GraphQLFieldConfigMapExt<TSource, TContext>{
     [fieldName: string]: GraphQLFieldConfigExt <
@@ -1054,7 +1133,9 @@ declare export class GraphQLObjectTypeExt {
         mixed>): this;
     getDirectives():
         Array <
-        GraphQLDirectiveValue >
+        GraphQLDirectiveValue>;
+    extendConfig(extra ? :
+        Object): void
 }
 
 /**

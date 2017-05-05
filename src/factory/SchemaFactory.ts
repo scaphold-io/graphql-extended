@@ -31,6 +31,7 @@ import {
   INPUT_OBJECT_TYPE_DEFINITION,
   SCHEMA_DEFINITION,
   DIRECTIVE_DEFINITION,
+  TYPE_EXTENSION_DEFINITION,
 } from 'graphql/language/kinds'
 
 import {
@@ -141,8 +142,46 @@ function getNamedTypeNode(typeNode: TypeNode): NamedTypeNode {
   return namedType
 }
 
+function keywordForDefinitionKind(kind: string): string {
+  switch (kind) {
+    case SCALAR_TYPE_DEFINITION:
+      return 'scalar'
+    case OBJECT_TYPE_DEFINITION:
+      return 'object'
+    case INTERFACE_TYPE_DEFINITION:
+      return 'scalar'
+    case ENUM_TYPE_DEFINITION:
+      return 'enum'
+    case UNION_TYPE_DEFINITION:
+      return 'union'
+    case INPUT_OBJECT_TYPE_DEFINITION:
+      return 'input'
+    default:
+      return 'unknown'
+  }
+}
+
+function keywordForTypeKind(type: GraphQLNamedType): string {
+  if (type instanceof GraphQLObjectType) {
+    return 'object'
+  } else if (type instanceof GraphQLScalarType) {
+    return 'scalar'
+  } else if (type instanceof GraphQLInterfaceType) {
+    return 'interface'
+  } else if (type instanceof GraphQLEnumType) {
+    return 'enum'
+  } else if (type instanceof GraphQLUnionType) {
+    return 'union'
+  } else if (type instanceof GraphQLInputObjectType) {
+    return 'input'
+  }
+  return 'unknown'
+}
+
 export interface SchemaFactoryConfig {
-  middleware?: FactoryMiddleware
+  middleware?: FactoryMiddleware,
+  onResolverCollision?: (oldFn: FieldResolverMap, newFn: FieldResolverMap, key: string) => FieldResolverMap,
+  onTypeCollision?: (oldType: GraphQLNamedType, newType: GraphQLNamedType, key: string) => GraphQLNamedType
 }
 /**
  * A base class that handles managing and building GraphQL schemas
@@ -304,6 +343,27 @@ export class SchemaFactory {
   }
 
   /**
+   * Add resolvers to the resolver map. These resolvers will get merged into types
+   * when you call getSchema().
+   */
+  public addResolveFunctionsToSchema(resolvers: TypeResolverMap<mixed, mixed> = {}): SchemaFactory {
+    this.resolverMap = this.resolverMap.mergeWith((oldVal, newVal, key: string) => {
+      // You can provide a custom handler for managing collisions, but by default we merge resolvers.
+      if (oldVal && newVal) {
+        if (this.config.onResolverCollision) {
+          return this.config.onResolverCollision(oldVal, newVal, key)
+        }
+        return {
+          ...oldVal,
+          ...newVal,
+        }
+      }
+      return newVal as FieldResolverMap
+    }, resolvers)
+    return this
+  }
+
+  /**
    * Add a single object type to the schema.
    * @param spec A single type declaration as GraphQL schema IDL
    * @param resolvers An object with field names for keys and GraphQLFieldResolver functions as values.
@@ -320,6 +380,7 @@ export class SchemaFactory {
       `Factory.createType expects a single definition of kind ${Kind.OBJECT_TYPE_DEFINITION}`,
     )
     const objectDef: ObjectTypeDefinitionNode = (definition as ObjectTypeDefinitionNode)
+    this.assertIsNewType(objectDef.name.value)
     this.nodeMap = this.nodeMap.set(
       objectDef.name.value,
       objectDef,
@@ -351,6 +412,7 @@ export class SchemaFactory {
       `Factory.createInterface expects a single definition of kind ${Kind.INTERFACE_TYPE_DEFINITION}`,
     )
     const iDef: InterfaceTypeDefinitionNode = (definition as InterfaceTypeDefinitionNode)
+    this.assertIsNewType(iDef.name.value)
     this.nodeMap = this.nodeMap.set(
       iDef.name.value,
       iDef,
@@ -380,6 +442,7 @@ export class SchemaFactory {
       `Factory.createEnum expects a single definition of kind ${Kind.ENUM_TYPE_DEFINITION}`,
     )
     const eDef: EnumTypeDefinitionNode = (definition as EnumTypeDefinitionNode)
+    this.assertIsNewType(eDef.name.value)
     this.nodeMap = this.nodeMap.set(
       eDef.name.value,
       eDef,
@@ -406,13 +469,14 @@ export class SchemaFactory {
       definition.kind === Kind.ENUM_TYPE_DEFINITION,
       `Factory.createEnum expects a single definition of kind ${Kind.ENUM_TYPE_DEFINITION}`,
     )
-    const eDef: EnumTypeDefinitionNode = (definition as EnumTypeDefinitionNode)
+    const uDef: EnumTypeDefinitionNode = (definition as EnumTypeDefinitionNode)
+    this.assertIsNewType(uDef.name.value)
     this.nodeMap = this.nodeMap.set(
-      eDef.name.value,
-      eDef,
+      uDef.name.value,
+      uDef,
     )
     this.typeResolverMap = this.typeResolverMap.set(
-      eDef.name.value,
+      uDef.name.value,
       resolveType,
     )
     return this
@@ -424,9 +488,21 @@ export class SchemaFactory {
    */
   public extendWithTypes(types: Array<GraphQLNamedType>): SchemaFactory {
     const that = this
-    types.forEach(type => {
-      that.typeMap = that.typeMap.set(type.name, type)
-    })
+    const keyedByName = keyValMap(
+      types,
+      type => type.name,
+      type => type,
+    )
+    this.typeMap = this.typeMap.mergeWith((oldType, newType, key) => {
+      // You can provide a custom handler for managing collisions, but by default it is not allowed.
+      if (that.config.onTypeCollision && oldType && newType && key) {
+        return that.config.onTypeCollision(oldType, newType, key)
+      }
+      throw new Error(
+        `A type with name ${key} already exists. ` +
+        'You can extend this type using the extend keyword with Factory.extendWithSpec()',
+      )
+    }, keyedByName)
     return that
   }
 
@@ -465,30 +541,41 @@ export class SchemaFactory {
             (d as DirectiveDefinitionNode).name.value, this.getDirective(d),
           )
           break
+        case TYPE_EXTENSION_DEFINITION:
+          // TODO: Should extend the document
+          break
         default:
           break
       }
     })
-
-    this.resolverMap = this.resolverMap.mergeWith((oldVal, newVal, key: string) => {
-      if (oldVal && newVal) {
-        /* tslint:disable */
-        console.warn(
-          `Found duplicate resolver definitions for type '${key}'`,
-        )
-        /* tslint:enable */
-        return newVal
-      }
-      return newVal as FieldResolverMap
-    }, resolvers)
+    this.addResolveFunctionsToSchema(resolvers)
     return this
+  }
+
+  /**
+   * Checks both the type cache and node cache for the existence of a type. If that type exists error.
+   * @param name The name of the type.
+   */
+  private assertIsNewType(name: string): void {
+    if (this.nodeMap.has(name)) {
+      const keyword = keywordForDefinitionKind(this.nodeMap.get(name).kind)
+      throw new Error(
+        `A ${keyword} with name ${name} already exists. ` +
+        `You can extend this ${keyword} using the extend keyword with Factory.extendWithSpec()`,
+      )
+    } else if (this.typeMap.has(name)) {
+      const tKeyword = keywordForTypeKind(this.typeMap.get(name))
+      throw new Error(
+        `A ${tKeyword} with name ${name} already exists. ` +
+        `You can extend this ${tKeyword} using the extend keyword with Factory.extendWithSpec()`,
+      )
+    }
   }
 
   /**
    * Protected API
    * @param directiveNode
    */
-
   protected getDirective(
     directiveNode: DirectiveDefinitionNode,
   ): GraphQLDirective {
@@ -613,13 +700,16 @@ export class SchemaFactory {
 
   protected makeTypeDef(def: ObjectTypeDefinitionNode): GraphQLObjectType {
     const typeName = def.name.value
-    return new GraphQLObjectTypeExt({
-      name: typeName,
-      description: getDescription(def),
-      fields: () => this.makeObjectFieldDefMap(def),
-      interfaces: () => this.makeImplementedInterfaces(def),
-      directives: () => this.makeDirectiveValues(def),
-    })
+    return this.middleware.wrapObjectType(
+      this,
+      new GraphQLObjectTypeExt({
+        name: typeName,
+        description: getDescription(def),
+        fields: () => this.makeObjectFieldDefMap(def),
+        interfaces: () => this.makeImplementedInterfaces(def),
+        directives: () => this.makeDirectiveValues(def),
+      }),
+    )
   }
 
   protected getResolver(
@@ -708,60 +798,73 @@ export class SchemaFactory {
 
   protected makeInterfaceDef(def: InterfaceTypeDefinitionNode): GraphQLInterfaceType {
     const typeName = def.name.value
-    return new GraphQLInterfaceType({
-      name: typeName,
-      description: getDescription(def),
-      fields: () => this.makeInterfaceFieldDefMap(def),
-      resolveType: cannotExecuteSchema,
-    })
+    return this.middleware.wrapInterfaceType(
+      this,
+      new GraphQLInterfaceType({
+        name: typeName,
+        description: getDescription(def),
+        fields: () => this.makeInterfaceFieldDefMap(def),
+        resolveType: cannotExecuteSchema,
+      }),
+    )
   }
 
   protected makeEnumDef(def: EnumTypeDefinitionNode): GraphQLEnumType {
-    const enumType = new GraphQLEnumType({
-      name: def.name.value,
-      description: getDescription(def),
-      values: keyValMap(
-        def.values,
-        enumValue => enumValue.name.value,
-        enumValue => ({
-          description: getDescription(enumValue),
-          deprecationReason: getDeprecationReason(enumValue.directives),
-        }),
-      ),
-    })
-
-    return enumType
+    return this.middleware.wrapEnumType(
+      this,
+      new GraphQLEnumType({
+        name: def.name.value,
+        description: getDescription(def),
+        values: keyValMap(
+          def.values,
+          enumValue => enumValue.name.value,
+          enumValue => ({
+            description: getDescription(enumValue),
+            deprecationReason: getDeprecationReason(enumValue.directives),
+          }),
+        ),
+      }),
+    )
   }
 
   protected makeUnionDef(def: UnionTypeDefinitionNode): GraphQLUnionType {
-    return new GraphQLUnionType({
-      name: def.name.value,
-      description: getDescription(def),
-      types: def.types.map(t => this.produceObjectType(t)),
-      resolveType: cannotExecuteSchema,
-    })
+    return this.middleware.wrapUnionType(
+      this,
+      new GraphQLUnionType({
+        name: def.name.value,
+        description: getDescription(def),
+        types: def.types.map(t => this.produceObjectType(t)),
+        resolveType: cannotExecuteSchema,
+      }),
+    )
   }
 
   protected makeScalarDef(def: ScalarTypeDefinitionNode): GraphQLScalarType {
-    return new GraphQLScalarType({
-      name: def.name.value,
-      description: getDescription(def),
-      serialize: () => null,
-      // Note: validation calls the parse functions to determine if a
-      // literal value is correct. Returning null would cause use of custom
-      // scalars to always fail validation. Returning false causes them to
-      // always pass validation.
-      parseValue: () => false,
-      parseLiteral: () => false,
-    })
+    return this.middleware.wrapScalarType(
+      this,
+      new GraphQLScalarType({
+        name: def.name.value,
+        description: getDescription(def),
+        serialize: () => null,
+        // Note: validation calls the parse functions to determine if a
+        // literal value is correct. Returning null would cause use of custom
+        // scalars to always fail validation. Returning false causes them to
+        // always pass validation.
+        parseValue: () => false,
+        parseLiteral: () => false,
+      }),
+    )
   }
 
   protected makeInputObjectDef(def: InputObjectTypeDefinitionNode): GraphQLInputObjectType {
-    return new GraphQLInputObjectType({
-      name: def.name.value,
-      description: getDescription(def),
-      fields: () => this.makeInputValues(def.fields) as GraphQLInputFieldConfigMap,
-    })
+    return this.middleware.wrapInputType(
+      this,
+      new GraphQLInputObjectType({
+        name: def.name.value,
+        description: getDescription(def),
+        fields: () => this.makeInputValues(def.fields) as GraphQLInputFieldConfigMap,
+      }),
+    )
   }
 
 }

@@ -93,7 +93,6 @@ export class RelayMiddleware extends FactoryMiddleware {
     if (interfaces.find(i => i.name.value === 'Node')) {
       factory.extendWithSpec(connectionSpec(definition))
     }
-
     return definition
   }
 

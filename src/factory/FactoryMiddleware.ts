@@ -6,9 +6,15 @@ import {
   ScalarTypeDefinitionNode,
   InputObjectTypeDefinitionNode,
   GraphQLSchema,
+  GraphQLInterfaceType,
+  GraphQLEnumType,
+  GraphQLUnionType,
+  GraphQLScalarType,
+  GraphQLInputObjectType,
 } from 'graphql'
 import {
   GraphQLFieldConfigExt,
+  GraphQLObjectTypeExt,
 } from '../type/object'
 import { SchemaFactory } from './SchemaFactory'
 
@@ -64,9 +70,8 @@ export class FactoryMiddleware {
 
   /**
    * Executed before the schema is built. This is useful for manipulating the
-   * AST nodes before they are converted into GraphQL types. Middleware is
-   * restricted to work on AST nodes instead of types. This is because type members
-   * are often thunks and it can introduce problems to try to resolve them out of order.
+   * AST nodes before they are converted into GraphQL types. These middleware methods
+   * operate on the AST nodes before they are built into full GraphQL types.
    *
    * @param nodeMap And ImmutableJS Map containing the AST definition nodes.
    * @return The augmented nodeMap
@@ -126,5 +131,69 @@ export class FactoryMiddleware {
     definition: InputObjectTypeDefinitionNode,
   ): InputObjectTypeDefinitionNode {
     return definition
+  }
+
+  /**
+   * Executed before the schema is built. This is useful for manipulating the GraphQL types before
+   * they are committed to the factory cache.
+   *
+   * @param nodeMap And ImmutableJS Map containing the AST definition nodes.
+   * @return The augmented nodeMap
+   */
+  public wrapObjectType(
+    _factory: SchemaFactory,
+    object: GraphQLObjectTypeExt,
+  ): GraphQLObjectTypeExt {
+    return object
+  }
+
+  /**
+   * Wrap an interface type or interact with the factory.
+   */
+  public wrapInterfaceType(
+    _factory: SchemaFactory,
+    interfce: GraphQLInterfaceType,
+  ): GraphQLInterfaceType {
+    return interfce
+  }
+
+  /**
+   * Wrap an enum type or interact with the factory.
+   */
+  public wrapEnumType(
+    _factory: SchemaFactory,
+    enm: GraphQLEnumType,
+  ): GraphQLEnumType {
+    return enm
+  }
+
+  /**
+   * Wrap an union type or interact with the factory.
+   */
+  public wrapUnionType(
+    _factory: SchemaFactory,
+    union: GraphQLUnionType,
+  ): GraphQLUnionType {
+    return union
+  }
+
+  /**
+   * Wrap an scalar type or interact with the factory.
+   */
+  public wrapScalarType(
+    _factory: SchemaFactory,
+    sclr: GraphQLScalarType,
+  ): GraphQLScalarType {
+    return sclr
+  }
+
+  /**
+   * Wrap an input type or interact with the factory.
+   */
+  public wrapInputType(
+    _factory: SchemaFactory,
+    inpt: GraphQLInputObjectType,
+  ): GraphQLInputObjectType {
+    return inpt
   }
 }

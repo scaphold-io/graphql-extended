@@ -26,6 +26,9 @@ test('Create a registry and add types and resolvers', () => {
     id: ID!
     type: PostType
   }
+  extend type User {
+    extension: String
+  }
   `, {
     Post: {
       id: () => 1,

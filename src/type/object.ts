@@ -30,7 +30,9 @@ function resolveThunk<T>(thunk: Thunk<T>): T {
 export interface GraphQLObjectTypeConfigExt<TSource, TContext>
   extends GraphQLObjectTypeConfig<TSource, TContext> {
 
-  directives?: Thunk<Array<GraphQLDirectiveValue>>
+  directives?: Thunk<Array<GraphQLDirectiveValue>>,
+
+  [extraField: string]: mixed,
 
 }
 
@@ -103,6 +105,13 @@ export class GraphQLObjectTypeExt extends GraphQLObjectType {
     return this._directives || (this._directives =
       defineDirectives(this, this._typeConfig.directives)
     )
+  }
+
+  public extendConfig(extra: Object = {}): void {
+    this._typeConfig = {
+      ...this._typeConfig,
+      ...extra,
+    }
   }
 }
 
