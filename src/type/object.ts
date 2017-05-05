@@ -32,7 +32,7 @@ export interface GraphQLObjectTypeConfigExt<TSource, TContext>
 
   directives?: Thunk<Array<GraphQLDirectiveValue>>,
 
-  [extraField: string]: mixed,
+  [prop: string]: mixed,
 
 }
 
@@ -44,6 +44,8 @@ export interface GraphQLFieldConfigExt<TSource, TContext>
   extends GraphQLFieldConfig<TSource, TContext> {
 
   directives: Array<GraphQLDirectiveValue>
+
+  [prop: string]: mixed,
 
 }
 

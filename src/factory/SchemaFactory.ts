@@ -229,6 +229,7 @@ export class SchemaFactory {
     this.schemaDef = null
     this.directiveMap = Map<string, GraphQLDirective>(DEFAULT_DIRECTIVES)
     this.resolverMap = Map<string, FieldResolverMap>()
+    this.middleware.onInit(this)
   }
 
   /**

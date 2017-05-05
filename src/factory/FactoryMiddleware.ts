@@ -33,6 +33,14 @@ export class FactoryMiddleware {
    * For example, you might add any default types, interfaces, etc.
    * @param _factory The factory instance calling the middleware
    */
+  public onInit(_factory: SchemaFactory): void { return }
+
+  /**
+   * This is called immediately after getSchema() is called and
+   * provides an opportunity for any excess setup.
+   * For example, you might add any default types, interfaces, etc.
+   * @param _factory The factory instance calling the middleware
+   */
   public beforeBuild(_factory: SchemaFactory): void { return }
 
   /**
