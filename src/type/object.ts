@@ -1,6 +1,5 @@
 import {
   GraphQLObjectType,
-  GraphQLDirective,
   GraphQLObjectTypeConfig,
   GraphQLFieldConfig,
   GraphQLField,
@@ -131,8 +130,8 @@ function defineDirectives(
   )
   directives.forEach(directive => {
     invariant(
-      directive instanceof GraphQLDirective,
-      `${type.name} expects directive values, it cannot` +
+      directive instanceof GraphQLDirectiveValue,
+      `${type.name} expects directive values, it cannot ` +
       `have directives: ${String(directive)}.`,
     )
   })
