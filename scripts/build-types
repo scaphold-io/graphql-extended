@@ -53,6 +53,8 @@ FILE_PREFIX_4="declare module 'graphql-extended' {"
 FILE_SUFFIX="}"
 
 TYPE_FILE=types.js.flow
+DROP_FILE=build/index.js.flow
+
 rm $TYPE_FILE
 
 echo $FILE_PREFIX_1 > $TYPE_FILE
@@ -68,3 +70,6 @@ find ./build -name '*.d.ts' -not -path '*/__tests__*' |
   done
 
 echo $FILE_SUFFIX >> $TYPE_FILE
+
+rm $DROP_FILE
+mv $TYPE_FILE $DROP_FILE
