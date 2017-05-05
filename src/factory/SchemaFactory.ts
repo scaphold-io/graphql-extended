@@ -642,7 +642,6 @@ export class SchemaFactory {
     const directive = this.directiveMap.get(directiveNode.name.value)
     return new GraphQLDirectiveValue({
       name: directiveNode.name.value,
-      description: getDescription(directiveNode),
       args: getArgumentValues(directive, directiveNode),
     })
   }
