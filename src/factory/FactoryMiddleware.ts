@@ -5,6 +5,7 @@ import {
   UnionTypeDefinitionNode,
   ScalarTypeDefinitionNode,
   InputObjectTypeDefinitionNode,
+  FieldDefinitionNode,
   GraphQLSchema,
   GraphQLInterfaceType,
   GraphQLEnumType,
@@ -58,6 +59,7 @@ export class FactoryMiddleware {
   public wrapObjectField(
     _factory: SchemaFactory,
     _definition: ObjectTypeDefinitionNode,
+    _fieldDef: FieldDefinitionNode,
     field: GraphQLFieldConfigExt<mixed, mixed>,
   ): GraphQLFieldConfigExt<mixed, mixed> {
     return field
@@ -71,6 +73,7 @@ export class FactoryMiddleware {
   public wrapInterfaceField(
     _factory: SchemaFactory,
     _definition: InterfaceTypeDefinitionNode,
+    _fieldDef: FieldDefinitionNode,
     field: GraphQLFieldConfigExt<mixed, mixed>,
   ): GraphQLFieldConfigExt<mixed, mixed> {
     return field

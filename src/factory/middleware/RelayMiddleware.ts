@@ -10,6 +10,7 @@ import {
   GraphQLTypeResolver,
   GraphQLScalarType,
   Kind,
+  FieldDefinitionNode,
 } from 'graphql'
 import {
   implementsInterface,
@@ -103,6 +104,7 @@ export class RelayMiddleware extends FactoryMiddleware {
   public wrapObjectField(
     factory: SchemaFactory,
     _definition: ObjectTypeDefinitionNode,
+    _field: FieldDefinitionNode,
     field: GraphQLFieldConfigExt<mixed, mixed>,
   ): GraphQLFieldConfigExt<mixed, mixed> {
     if (

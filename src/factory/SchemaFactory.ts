@@ -735,6 +735,7 @@ export class SchemaFactory {
         this.middleware.wrapObjectField(
           this,
           def,
+          field,
           {
             type: this.produceOutputType(field.type),
             description: getDescription(field),
@@ -758,6 +759,7 @@ export class SchemaFactory {
         this.middleware.wrapInterfaceField(
           this,
           def,
+          field,
           {
             type: this.produceOutputType(field.type),
             description: getDescription(field),
