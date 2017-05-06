@@ -38,7 +38,7 @@
     "build-dot-flow": "./scripts/build-types"
   },
   "dependencies": {
-    "graphql": "^0.9.3",
+    "graphql": "^0.9.6",
     "immutable": "^3.8.1",
     "iterall": "1.0.3",
     "tslib": "^1.5.0"
