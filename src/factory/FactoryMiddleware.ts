@@ -150,6 +150,7 @@ export class FactoryMiddleware {
    */
   public wrapObjectType(
     _factory: SchemaFactory,
+    _definition: ObjectTypeDefinitionNode,
     object: GraphQLObjectTypeExt,
   ): GraphQLObjectTypeExt {
     return object
@@ -160,6 +161,7 @@ export class FactoryMiddleware {
    */
   public wrapInterfaceType(
     _factory: SchemaFactory,
+    _definition: InterfaceTypeDefinitionNode,
     interfce: GraphQLInterfaceType,
   ): GraphQLInterfaceType {
     return interfce
@@ -170,6 +172,7 @@ export class FactoryMiddleware {
    */
   public wrapEnumType(
     _factory: SchemaFactory,
+    _definition: EnumTypeDefinitionNode,
     enm: GraphQLEnumType,
   ): GraphQLEnumType {
     return enm
@@ -180,6 +183,7 @@ export class FactoryMiddleware {
    */
   public wrapUnionType(
     _factory: SchemaFactory,
+    _definition: UnionTypeDefinitionNode,
     union: GraphQLUnionType,
   ): GraphQLUnionType {
     return union
@@ -190,6 +194,7 @@ export class FactoryMiddleware {
    */
   public wrapScalarType(
     _factory: SchemaFactory,
+    _definition: ScalarTypeDefinitionNode,
     sclr: GraphQLScalarType,
   ): GraphQLScalarType {
     return sclr
@@ -200,6 +205,7 @@ export class FactoryMiddleware {
    */
   public wrapInputType(
     _factory: SchemaFactory,
+    _definition: InputObjectTypeDefinitionNode,
     inpt: GraphQLInputObjectType,
   ): GraphQLInputObjectType {
     return inpt

@@ -702,6 +702,7 @@ export class SchemaFactory {
     const typeName = def.name.value
     return this.middleware.wrapObjectType(
       this,
+      def,
       new GraphQLObjectTypeExt({
         name: typeName,
         description: getDescription(def),
@@ -800,6 +801,7 @@ export class SchemaFactory {
     const typeName = def.name.value
     return this.middleware.wrapInterfaceType(
       this,
+      def,
       new GraphQLInterfaceType({
         name: typeName,
         description: getDescription(def),
@@ -812,6 +814,7 @@ export class SchemaFactory {
   protected makeEnumDef(def: EnumTypeDefinitionNode): GraphQLEnumType {
     return this.middleware.wrapEnumType(
       this,
+      def,
       new GraphQLEnumType({
         name: def.name.value,
         description: getDescription(def),
@@ -830,6 +833,7 @@ export class SchemaFactory {
   protected makeUnionDef(def: UnionTypeDefinitionNode): GraphQLUnionType {
     return this.middleware.wrapUnionType(
       this,
+      def,
       new GraphQLUnionType({
         name: def.name.value,
         description: getDescription(def),
@@ -842,6 +846,7 @@ export class SchemaFactory {
   protected makeScalarDef(def: ScalarTypeDefinitionNode): GraphQLScalarType {
     return this.middleware.wrapScalarType(
       this,
+      def,
       new GraphQLScalarType({
         name: def.name.value,
         description: getDescription(def),
@@ -859,6 +864,7 @@ export class SchemaFactory {
   protected makeInputObjectDef(def: InputObjectTypeDefinitionNode): GraphQLInputObjectType {
     return this.middleware.wrapInputType(
       this,
+      def,
       new GraphQLInputObjectType({
         name: def.name.value,
         description: getDescription(def),
