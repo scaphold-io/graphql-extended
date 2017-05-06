@@ -716,13 +716,13 @@ export class SchemaFactory {
   protected getResolver(
     type: ObjectTypeDefinitionNode,
     field: FieldDefinitionNode,
-  ): GraphQLFieldResolver<mixed, mixed> {
+  ): GraphQLFieldResolver<mixed, mixed> | undefined {
     const fieldResolver = this.resolverMap.getIn([type.name.value, field.name.value])
     if (fieldResolver) {
       return fieldResolver
     }
-    // If no resolver is defined, return the identity function.
-    return (s: mixed) => s ? s[field.name.value] : s
+    // If no resolver is defined return undefined
+    return
   }
 
   protected makeObjectFieldDefMap(
