@@ -104,7 +104,7 @@ export class RelayMiddleware extends FactoryMiddleware {
   public wrapObjectField(
     factory: SchemaFactory,
     _definition: ObjectTypeDefinitionNode,
-    _field: FieldDefinitionNode,
+    _fieldDef: FieldDefinitionNode,
     field: GraphQLFieldConfigExt<mixed, mixed>,
   ): GraphQLFieldConfigExt<mixed, mixed> {
     if (
