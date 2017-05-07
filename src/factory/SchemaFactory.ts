@@ -2,7 +2,7 @@ import invariant from '../jsutils/invariant'
 import keyValMap from '../jsutils/keyValMap'
 import { valueFromAST } from 'graphql/utilities/valueFromAST'
 import { getArgumentValues } from '../execution/values'
-import { getDescription, getDeprecationReason } from '../utilities'
+import { getDescription, getDeprecationReason, getNamedTypeNode } from '../utilities'
 import {
   TypeResolverMap,
   FieldResolverMap,
@@ -37,7 +37,6 @@ import {
 import {
   DirectiveNode,
   TypeNode,
-  NamedTypeNode,
   SchemaDefinitionNode,
   TypeDefinitionNode,
   ScalarTypeDefinitionNode,
@@ -132,14 +131,6 @@ function buildWrappedType(
     return new GraphQLNonNull(wrappedType)
   }
   return innerType
-}
-
-function getNamedTypeNode(typeNode: TypeNode): NamedTypeNode {
-  let namedType = typeNode
-  while (namedType.kind === LIST_TYPE || namedType.kind === NON_NULL_TYPE) {
-    namedType = namedType.type
-  }
-  return namedType
 }
 
 function keywordForDefinitionKind(kind: string): string {
@@ -328,8 +319,12 @@ export class SchemaFactory {
     return this.typeMap.has(name)
   }
 
-  public hasDefinition(name: string): boolean {
+  public hasASTNode(name: string): boolean {
     return this.nodeMap.has(name)
+  }
+
+  public getASTNode(name: string): TypeDefinitionNode {
+    return this.nodeMap.get(name)
   }
 
   /**
