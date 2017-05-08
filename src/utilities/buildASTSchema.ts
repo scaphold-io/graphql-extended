@@ -121,6 +121,10 @@ import {
   TypeResolverMap,
 } from './ResolverMap'
 
+import {
+  locationForDirectiveDefinition,
+} from './locationForDirectiveDefinition'
+
 function buildWrappedType(
   innerType: GraphQLType,
   inputTypeNode: TypeNode,
@@ -355,9 +359,13 @@ export function buildASTSchema(
     return type as GraphQLInterfaceType
   }
 
-  function produceDirectiveValue(directiveNode: DirectiveNode): GraphQLDirectiveValue {
+  function produceDirectiveValue(
+    def: ObjectTypeDefinitionNode | FieldDefinitionNode,
+    directiveNode: DirectiveNode,
+  ): GraphQLDirectiveValue {
     const directiveType = directives.find(o => o.name === directiveNode.name.value)
-    if (!directiveType) {
+    const directive = directives.find(dir => dir.name === directiveNode.name.value)
+    if (!directiveType || !directive) {
       throw new GraphQLError(
         `Unrecognized directive ${directiveNode.name.value} found on schema`,
         [directiveNode],
@@ -368,6 +376,7 @@ export function buildASTSchema(
       name: directiveNode.name.value,
       description: getDescription(directiveNode),
       args: getArgumentValues(directiveType, directiveNode),
+      location: locationForDirectiveDefinition(directive, def),
     })
   }
 
@@ -473,7 +482,7 @@ export function buildASTSchema(
 
   function makeDirectiveValues(def: ObjectTypeDefinitionNode | FieldDefinitionNode): Array<GraphQLDirectiveValue> {
     return def.directives ?
-      def.directives.map(dir => produceDirectiveValue(dir)) :
+      def.directives.map(dir => produceDirectiveValue(def, dir)) :
       []
   }
 

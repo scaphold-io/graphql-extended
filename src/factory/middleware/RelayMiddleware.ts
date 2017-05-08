@@ -3,6 +3,7 @@ import {
 } from '../FactoryMiddleware'
 import {
   GraphQLFieldConfigExt,
+  GraphQLObjectTypeExt,
 } from '../../type/object'
 import { SchemaFactory } from '../SchemaFactory'
 import {
@@ -84,17 +85,18 @@ export class RelayMiddleware extends FactoryMiddleware {
   }
 
   /**
-   * If the type implements Node then create connection types for it.
+   * If the type implements Node twhen create connection types for it.
    */
-  public wrapObjectNode(
+  public wrapObjectType(
     factory: SchemaFactory,
     definition: ObjectTypeDefinitionNode,
-  ): ObjectTypeDefinitionNode {
+    object: GraphQLObjectTypeExt,
+  ): GraphQLObjectTypeExt {
     const interfaces = definition.interfaces || []
     if (interfaces.find(i => i.name.value === 'Node')) {
       factory.extendWithSpec(connectionSpec(definition))
     }
-    return definition
+    return object
   }
 
   /**

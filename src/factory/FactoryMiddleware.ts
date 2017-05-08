@@ -80,73 +80,8 @@ export class FactoryMiddleware {
   }
 
   /**
-   * Executed before the schema is built. This is useful for manipulating the
-   * AST nodes before they are converted into GraphQL types. These middleware methods
-   * operate on the AST nodes before they are built into full GraphQL types.
-   *
-   * @param nodeMap And ImmutableJS Map containing the AST definition nodes.
-   * @return The augmented nodeMap
-   */
-  public wrapObjectNode(
-    _factory: SchemaFactory,
-    definition: ObjectTypeDefinitionNode,
-  ): ObjectTypeDefinitionNode {
-    return definition
-  }
-
-  /**
-   * Wrap an interface or interact with the factory.
-   */
-  public wrapInterfaceNode(
-    _factory: SchemaFactory,
-    definition: InterfaceTypeDefinitionNode,
-  ): InterfaceTypeDefinitionNode {
-    return definition
-  }
-
-  /**
-   * Wrap an enum or interact with the factory.
-   */
-  public wrapEnumNode(
-    _factory: SchemaFactory,
-    definition: EnumTypeDefinitionNode,
-  ): EnumTypeDefinitionNode {
-    return definition
-  }
-
-  /**
-   * Wrap an union or interact with the factory.
-   */
-  public wrapUnionNode(
-    _factory: SchemaFactory,
-    definition: UnionTypeDefinitionNode,
-  ): UnionTypeDefinitionNode {
-    return definition
-  }
-
-  /**
-   * Wrap an scalar or interact with the factory.
-   */
-  public wrapScalarNode(
-    _factory: SchemaFactory,
-    definition: ScalarTypeDefinitionNode,
-  ): ScalarTypeDefinitionNode {
-    return definition
-  }
-
-  /**
-   * Wrap an input or interact with the factory.
-   */
-  public wrapInputNode(
-    _factory: SchemaFactory,
-    definition: InputObjectTypeDefinitionNode,
-  ): InputObjectTypeDefinitionNode {
-    return definition
-  }
-
-  /**
-   * Executed before the schema is built. This is useful for manipulating the GraphQL types before
-   * they are committed to the factory cache.
+   * Executed as the schema is being built. This is useful for manipulating
+   * the GraphQL types before they are committed to the factory cache.
    *
    * @param nodeMap And ImmutableJS Map containing the AST definition nodes.
    * @return The augmented nodeMap

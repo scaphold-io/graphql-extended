@@ -2,6 +2,7 @@ import invariant from '../jsutils/invariant'
 import {
   GraphQLDirective,
   DirectiveLocation,
+  DirectiveLocationEnum,
   GraphQLNonNull,
   GraphQLEnumType,
 } from 'graphql/type'
@@ -14,7 +15,8 @@ export type GraphQLDirectiveValueConfig = {
   description?: string;
   args: {
     [name: string]: mixed;
-  }
+  },
+  location: DirectiveLocationEnum;
 }
 export class GraphQLDirectiveValue {
 
@@ -24,10 +26,13 @@ export class GraphQLDirectiveValue {
     [name: string]: mixed;
   }
 
+  public location: DirectiveLocationEnum
+
   constructor(config: GraphQLDirectiveValueConfig) {
     invariant(config.name, 'Directive values must be named')
     this.name = config.name
     this.args = config.args || {}
+    this.location = config.location
   }
 
   public get(key: string): mixed {

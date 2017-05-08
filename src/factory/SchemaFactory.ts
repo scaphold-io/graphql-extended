@@ -2,7 +2,12 @@ import invariant from '../jsutils/invariant'
 import keyValMap from '../jsutils/keyValMap'
 import { valueFromAST } from 'graphql/utilities/valueFromAST'
 import { getArgumentValues } from '../execution/values'
-import { getDescription, getDeprecationReason, getNamedTypeNode } from '../utilities'
+import {
+  getDescription,
+  getDeprecationReason,
+  getNamedTypeNode,
+  locationForDirectiveDefinition,
+} from '../utilities'
 import {
   TypeResolverMap,
   FieldResolverMap,
@@ -90,6 +95,7 @@ import {
   GraphQLSkipDirective,
   GraphQLIncludeDirective,
   GraphQLDeprecatedDirective,
+  DirectiveLocation,
 } from 'graphql/type/directives'
 
 import {
@@ -133,8 +139,8 @@ function buildWrappedType(
   return innerType
 }
 
-function keywordForDefinitionKind(kind: string): string {
-  switch (kind) {
+function keywordForDefinition(node: TypeDefinitionNode): string {
+  switch (node.kind) {
     case SCALAR_TYPE_DEFINITION:
       return 'scalar'
     case OBJECT_TYPE_DEFINITION:
@@ -167,6 +173,17 @@ function keywordForTypeKind(type: GraphQLNamedType): string {
     return 'input'
   }
   return 'unknown'
+}
+
+function validateDirectiveLocations(directive: DirectiveDefinitionNode): void {
+  for (let location of directive.locations) {
+    if (!DirectiveLocation[location.value]) {
+      throw new Error(
+        `The directive '${directive.name.value}' has an invalid location '${location.value}'.\n` +
+        `Try one of [ ${Object.keys(DirectiveLocation).join(', ')} ].`,
+      )
+    }
+  }
 }
 
 export interface SchemaFactoryConfig {
@@ -528,6 +545,7 @@ export class SchemaFactory {
         case ENUM_TYPE_DEFINITION:
         case UNION_TYPE_DEFINITION:
         case INPUT_OBJECT_TYPE_DEFINITION:
+          this.assertIsNewType(d.name.value)
           this.nodeMap = this.nodeMap.set(
             (d as TypeDefinitionNode).name.value, d as TypeDefinitionNode,
           )
@@ -554,7 +572,7 @@ export class SchemaFactory {
    */
   private assertIsNewType(name: string): void {
     if (this.nodeMap.has(name)) {
-      const keyword = keywordForDefinitionKind(this.nodeMap.get(name).kind)
+      const keyword = keywordForDefinition(this.nodeMap.get(name))
       throw new Error(
         `A ${keyword} with name ${name} already exists. ` +
         `You can extend this ${keyword} using the extend keyword with Factory.extendWithSpec()`,
@@ -575,6 +593,7 @@ export class SchemaFactory {
   protected getDirective(
     directiveNode: DirectiveDefinitionNode,
   ): GraphQLDirective {
+    validateDirectiveLocations(directiveNode)
     return new GraphQLDirective({
       name: directiveNode.name.value,
       description: getDescription(directiveNode),
@@ -633,11 +652,18 @@ export class SchemaFactory {
     return type as GraphQLInterfaceType
   }
 
-  protected produceDirectiveValue(directiveNode: DirectiveNode): GraphQLDirectiveValue {
+  protected produceDirectiveValue(
+    def: ObjectTypeDefinitionNode | FieldDefinitionNode,
+    directiveNode: DirectiveNode,
+  ): GraphQLDirectiveValue {
     const directive = this.directiveMap.get(directiveNode.name.value)
+    if (!directive) {
+      throw new Error(`Unrecognized directive ${directiveNode.name.value} found on schema.`)
+    }
     return new GraphQLDirectiveValue({
       name: directiveNode.name.value,
       args: getArgumentValues(directive, directiveNode),
+      location: locationForDirectiveDefinition(directive, def),
     })
   }
 
@@ -665,29 +691,17 @@ export class SchemaFactory {
     // Create types from AST nodes. This is where factory middleware wraps nodes.
     switch (def.kind) {
       case OBJECT_TYPE_DEFINITION:
-        return this.makeTypeDef(
-          this.middleware.wrapObjectNode(this, def),
-        )
+        return this.makeTypeDef(def)
       case INTERFACE_TYPE_DEFINITION:
-        return this.makeInterfaceDef(
-          this.middleware.wrapInterfaceNode(this, def),
-        )
+        return this.makeInterfaceDef(def)
       case ENUM_TYPE_DEFINITION:
-        return this.makeEnumDef(
-          this.middleware.wrapEnumNode(this, def),
-        )
+        return this.makeEnumDef(def)
       case UNION_TYPE_DEFINITION:
-        return this.makeUnionDef(
-          this.middleware.wrapUnionNode(this, def),
-        )
+        return this.makeUnionDef(def)
       case SCALAR_TYPE_DEFINITION:
-        return this.makeScalarDef(
-          this.middleware.wrapScalarNode(this, def),
-        )
+        return this.makeScalarDef(def)
       case INPUT_OBJECT_TYPE_DEFINITION:
-        return this.makeInputObjectDef(
-          this.middleware.wrapInputNode(this, def),
-        )
+        return this.makeInputObjectDef(def)
       default:
         throw new Error(`Type kind "${def}" not supported.`)
     }
@@ -775,7 +789,7 @@ export class SchemaFactory {
 
   protected makeDirectiveValues(def: ObjectTypeDefinitionNode | FieldDefinitionNode): Array<GraphQLDirectiveValue> {
     return def.directives ?
-      def.directives.map(dir => this.produceDirectiveValue(dir)) :
+      def.directives.map(dir => this.produceDirectiveValue(def, dir)) :
       []
   }
 
