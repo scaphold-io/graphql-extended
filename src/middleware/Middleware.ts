@@ -5,8 +5,8 @@ import {
   ExecutionContext,
 } from '../execution/ExecutionContext'
 
-// export type MiddlewareValue = mixed
-// export type FieldValue = mixed
+// export type MiddlewareValue = {} | string | number | boolean | undefined | null
+// export type FieldValue = {} | string | number | boolean | undefined | null
 
 export interface Middleware<MiddlewareValue, FieldValue, Ctx> {
 
@@ -48,19 +48,19 @@ export interface Middleware<MiddlewareValue, FieldValue, Ctx> {
     fVal: FieldValue,
 
     // The value returned from the fields resolver
-    value: mixed,
+    value: {} | string | number | boolean | undefined | null,
 
     // The execution context
     eCtx: ExecutionContext,
 
     // All information you might want for the field
     mCtx: ResolverContext<Ctx>,
-  ): mixed
+  ): {} | string | number | boolean | undefined | null
 }
 
 export interface ResolverContext<Ctx> {
-  source: mixed,
-  args: mixed,
+  source: {} | string | number | boolean | undefined | null,
+  args: {} | string | number | boolean | undefined | null,
   context: Ctx,
   info: GraphQLExtResolveInfo,
 }

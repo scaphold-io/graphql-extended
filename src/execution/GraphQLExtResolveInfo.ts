@@ -4,5 +4,5 @@ import {
 } from 'graphql'
 
 export interface GraphQLExtResolveInfo extends GraphQLResolveInfo {
-  field: GraphQLField<mixed, mixed>
+  field: GraphQLField<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null>
 }

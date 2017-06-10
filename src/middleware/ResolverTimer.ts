@@ -3,13 +3,13 @@ import { ExecutionContext } from '../execution/ExecutionContext'
 
 export type FieldTimerTimeUnit = 'milli' | 'micro' | 'nano'
 
-export class ResolverTimer implements Middleware<Map<string, number>, number, mixed> {
+export class ResolverTimer implements Middleware<Map<string, number>, number, {} | string | number | boolean | undefined | null> {
 
   constructor(
     private logger: (
       totalRunTime: number,
       resolverDurationMap: Map<string, number>,
-    ) => mixed | void,
+    ) => {} | string | number | boolean | undefined | null | void,
     private timeUnit: FieldTimerTimeUnit = 'milli',
   ) {}
 
@@ -26,9 +26,9 @@ export class ResolverTimer implements Middleware<Map<string, number>, number, mi
   public afterField(
     mVal: Map<string, number>,
     fValue: number,
-    _value: mixed,
+    _value: {} | string | number | boolean | undefined | null,
     _eCtx: ExecutionContext,
-    mCtx: ResolverContext<mixed>,
+    mCtx: ResolverContext<{} | string | number | boolean | undefined | null>,
   ): undefined {
     mVal.set(
       `${mCtx.info.parentType.name}.${mCtx.info.fieldName}`,

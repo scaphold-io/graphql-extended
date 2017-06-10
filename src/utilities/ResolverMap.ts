@@ -15,11 +15,11 @@ export type TypeResolverMap<TSource, TContext> = {
   };
 }
 
-export type FieldResolverMap = {[fieldName: string]: GraphQLFieldResolver<mixed, mixed>}
+export type FieldResolverMap = {[fieldName: string]: GraphQLFieldResolver<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null>}
 
 export type ScalarResolver<TInternal, TExternal> = {
-  serialize: (value: mixed) => TExternal | null;
-  parseValue?: (value: mixed) => TInternal | null;
+  serialize: (value: {} | string | number | boolean | undefined | null) => TExternal | null;
+  parseValue?: (value: {} | string | number | boolean | undefined | null) => TInternal | null;
   parseLiteral?: (valueAST: ValueNode) => TInternal | null;
 }
 

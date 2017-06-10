@@ -48,8 +48,8 @@ import {
 export function getVariableValues(
   schema: GraphQLSchema,
   varDefNodes: Array<VariableDefinitionNode>,
-  inputs: { [key: string]: mixed },
-): { [key: string]: mixed } {
+  inputs: { [key: string]: {} | string | number | boolean | undefined | null },
+): { [key: string]: {} | string | number | boolean | undefined | null } {
   const coercedValues = Object.create(null)
   for (let varDefNode of varDefNodes) {
     const varName = varDefNode.variable.name.value
@@ -100,10 +100,10 @@ export function getVariableValues(
  * definitions and list of argument AST nodes.
  */
 export function getArgumentValues(
-  def: GraphQLField<mixed, mixed> | GraphQLDirective,
+  def: GraphQLField<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null> | GraphQLDirective,
   node: FieldNode | DirectiveNode,
-  variableValues?: { [key: string]: mixed },
-): { [key: string]: mixed } {
+  variableValues?: { [key: string]: {} | string | number | boolean | undefined | null },
+): { [key: string]: {} | string | number | boolean | undefined | null } {
   const argDefs = def.args
   const argNodes = node.arguments
   if (!argDefs || !argNodes) {
@@ -163,7 +163,7 @@ export function getArgumentValues(
 /**
  * Given a type and any value, return a runtime value coerced to match the type.
  */
-function coerceValue(type: GraphQLInputType, value: mixed): mixed {
+function coerceValue(type: GraphQLInputType, value: {} | string | number | boolean | undefined | null): {} | string | number | boolean | undefined | null {
   // Ensure flow knows that we treat function params as const.
   const _value = value
 

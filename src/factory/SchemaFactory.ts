@@ -204,11 +204,11 @@ export class SchemaFactory {
 
   protected resolverMap: Map<string, FieldResolverMap>
 
-  protected typeResolverMap: Map<string, GraphQLTypeResolver<mixed, mixed>>
+  protected typeResolverMap: Map<string, GraphQLTypeResolver<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null>>
 
   protected directiveMap: Map<string, GraphQLDirective>
 
-  protected scalarResolvers: Map<string, ScalarResolverMap<mixed, mixed>>
+  protected scalarResolvers: Map<string, ScalarResolverMap<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null>>
 
   private config: SchemaFactoryConfig
 
@@ -218,7 +218,7 @@ export class SchemaFactory {
     this.config = config
     this.middleware = config.middleware ? config.middleware : new FactoryMiddleware()
     this.nodeMap = Map<string, TypeDefinitionNode>()
-    this.typeResolverMap = Map<string, GraphQLTypeResolver<mixed, mixed>>()
+    this.typeResolverMap = Map<string, GraphQLTypeResolver<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null>>()
     this.typeMap = Map<string, GraphQLNamedType>({
       String: GraphQLString,
       Int: GraphQLInt,
@@ -359,7 +359,7 @@ export class SchemaFactory {
    * Add resolvers to the resolver map. These resolvers will get merged into types
    * when you call getSchema().
    */
-  public addResolveFunctionsToSchema(resolvers: TypeResolverMap<mixed, mixed> = {}): SchemaFactory {
+  public addResolveFunctionsToSchema(resolvers: TypeResolverMap<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null> = {}): SchemaFactory {
     this.resolverMap = this.resolverMap.mergeWith((oldVal, newVal, key: string) => {
       // You can provide a custom handler for managing collisions, but by default we merge resolvers.
       if (oldVal && newVal) {
@@ -412,7 +412,7 @@ export class SchemaFactory {
    */
   public createInterface(
     spec: string,
-    resolveType: GraphQLTypeResolver<mixed, mixed>,
+    resolveType: GraphQLTypeResolver<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null>,
   ): SchemaFactory {
     const def = parse(spec)
     invariant(
@@ -470,7 +470,7 @@ export class SchemaFactory {
    */
   public createUnion(
     spec: string,
-    resolveType: GraphQLTypeResolver<mixed, mixed>,
+    resolveType: GraphQLTypeResolver<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null>,
   ): SchemaFactory {
     const def = parse(spec)
     invariant(
@@ -525,7 +525,7 @@ export class SchemaFactory {
    *
    * @param spec A GraphQL document string containing the new schema elements
    */
-  public extendWithSpec(spec: string, resolvers: TypeResolverMap<mixed, mixed> = {}): SchemaFactory {
+  public extendWithSpec(spec: string, resolvers: TypeResolverMap<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null> = {}): SchemaFactory {
     const def = parse(spec)
     if (!def) {
       throw new Error('GraphQL spec must have atleast one definition')
@@ -725,7 +725,7 @@ export class SchemaFactory {
   protected getResolver(
     type: ObjectTypeDefinitionNode,
     field: FieldDefinitionNode,
-  ): GraphQLFieldResolver<mixed, mixed> | undefined {
+  ): GraphQLFieldResolver<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null> | undefined {
     const fieldResolver = this.resolverMap.getIn([type.name.value, field.name.value])
     if (fieldResolver) {
       return fieldResolver
@@ -736,8 +736,8 @@ export class SchemaFactory {
 
   protected makeObjectFieldDefMap(
     def: ObjectTypeDefinitionNode,
-  ): GraphQLFieldConfigMapExt<mixed, mixed> {
-    return keyValMap<FieldDefinitionNode, GraphQLFieldConfigExt<mixed, mixed>> (
+  ): GraphQLFieldConfigMapExt<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null> {
+    return keyValMap<FieldDefinitionNode, GraphQLFieldConfigExt<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null>> (
       def.fields,
       field => field.name.value,
       field => (
@@ -760,8 +760,8 @@ export class SchemaFactory {
 
   protected makeInterfaceFieldDefMap(
     def: InterfaceTypeDefinitionNode,
-  ): GraphQLFieldConfigMapExt<mixed, mixed> {
-    return keyValMap<FieldDefinitionNode, GraphQLFieldConfigExt<mixed, mixed>> (
+  ): GraphQLFieldConfigMapExt<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null> {
+    return keyValMap<FieldDefinitionNode, GraphQLFieldConfigExt<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null>> (
       def.fields,
       field => field.name.value,
       field => (
@@ -793,7 +793,7 @@ export class SchemaFactory {
       []
   }
 
-  protected makeInputValues(values: Array<InputValueDefinitionNode>): { [name: string]: mixed } {
+  protected makeInputValues(values: Array<InputValueDefinitionNode>): { [name: string]: {} | string | number | boolean | undefined | null } {
     return keyValMap(
       values,
       value => value.name.value,
@@ -886,7 +886,7 @@ export class SchemaFactory {
 
 }
 
-const cannotExecuteSchema: GraphQLTypeResolver<mixed, mixed> = () => {
+const cannotExecuteSchema: GraphQLTypeResolver<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null> = () => {
   throw new Error(
     'Generated Schema cannot use Interface or Union types for execution.',
   )

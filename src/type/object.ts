@@ -12,7 +12,7 @@ import invariant from '../jsutils/invariant'
 
 // import { assertValidName } from 'graphql/utilities/assertValidName'
 
-// function isPlainObj(obj: mixed) {
+// function isPlainObj(obj: {} | string | number | boolean | undefined | null) {
 //   return obj && typeof obj === 'object' && !Array.isArray(obj);
 // }
 
@@ -20,17 +20,18 @@ import invariant from '../jsutils/invariant'
 // function isValidResolver(resolver: any): boolean {
 //   return (resolver == null || typeof resolver === 'function');
 // }
+// export declare type Thunk<T> = (() => T) | T
 
-function resolveThunk<T>(thunk: Thunk<T>): T {
+function resolveThunk<T>(thunk: (() => T) | T): T {
   return typeof thunk === 'function' ? thunk() : thunk
 }
 
 export interface GraphQLObjectTypeConfigExt<TSource, TContext>
   extends GraphQLObjectTypeConfig<TSource, TContext> {
 
-  directives?: Thunk<Array<GraphQLDirectiveValue>>,
+  directives?: () => Array<GraphQLDirectiveValue> | Array<GraphQLDirectiveValue>,
 
-  [prop: string]: mixed,
+  [prop: string]: {} | string | number | boolean | undefined | null,
 
 }
 
@@ -43,7 +44,7 @@ export interface GraphQLFieldConfigExt<TSource, TContext>
 
   directives: Array<GraphQLDirectiveValue>
 
-  [prop: string]: mixed,
+  [prop: string]: {} | string | number | boolean | undefined | null,
 
 }
 
@@ -85,23 +86,23 @@ export interface GraphQLFieldExt<TSource, TContext>
  */
 export class GraphQLObjectTypeExt extends GraphQLObjectType {
 
-  private _typeConfig: GraphQLObjectTypeConfigExt<mixed, mixed>
+  private _typeConfig: GraphQLObjectTypeConfigExt<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null>
 
   private _directives: Array<GraphQLDirectiveValue>
 
-  // private _fields: GraphQLFieldMap<mixed, mixed>
+  // private _fields: GraphQLFieldMap<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null>
 
-  constructor(config: GraphQLObjectTypeConfigExt<mixed, mixed>) {
+  constructor(config: GraphQLObjectTypeConfigExt<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null>) {
     super(config)
   }
 
-  // public getFields(): GraphQLFieldMap<mixed, mixed> {
+  // public getFields(): GraphQLFieldMap<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null> {
   //   return this._fields || (this._fields =
   //     defineFieldMap(this, this._typeConfig.fields)
   //   )
   // }
 
-  get config(): GraphQLObjectTypeConfigExt<mixed, mixed> {
+  get config(): GraphQLObjectTypeConfigExt<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null> {
     return this._typeConfig
   }
 
@@ -121,7 +122,7 @@ export class GraphQLObjectTypeExt extends GraphQLObjectType {
 
 function defineDirectives(
   type: GraphQLObjectType,
-  directivesThunk?: Thunk<Array<GraphQLDirectiveValue>>,
+  directivesThunk?: () => Array<GraphQLDirectiveValue> | Array<GraphQLDirectiveValue>,
 ): Array<GraphQLDirectiveValue> {
   if (!directivesThunk) { return [] }
   const directives = resolveThunk(directivesThunk)

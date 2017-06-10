@@ -21,10 +21,10 @@ export default class DirectiveCollector<ReducedDirective> implements QueryReduce
   public reduceField(
     parent: Array<ReducedDirective>,
     child: Array<ReducedDirective>,
-    _ctx: mixed,
+    _ctx: {} | string | number | boolean | undefined | null,
     info: GraphQLExtResolveInfo,
   ): Array<ReducedDirective> {
-    const reduced = (info.field as GraphQLFieldExt<mixed, mixed>).directives.map(
+    const reduced = (info.field as GraphQLFieldExt<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null>).directives.map(
       directive => this.handleDirective(directive),
     )
     return [...parent, ...reduced, ...child]

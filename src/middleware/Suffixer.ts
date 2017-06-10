@@ -2,7 +2,7 @@ import { Middleware, ResolverContext } from './Middleware'
 import { ExecutionContext } from '../execution/ExecutionContext'
 import { GraphQLScalarType } from 'graphql/type'
 
-export class Suffixer implements Middleware<Map<string, number>, number, mixed> {
+export class Suffixer implements Middleware<Map<string, number>, number, {} | string | number | boolean | undefined | null> {
 
   constructor(
     private suffix: string,
@@ -15,9 +15,9 @@ export class Suffixer implements Middleware<Map<string, number>, number, mixed> 
   public afterField(
     _mVal: Map<string, number>,
     _fValue: number,
-    value: mixed,
+    value: {} | string | number | boolean | undefined | null,
     _eCtx: ExecutionContext,
-    mCtx: ResolverContext<mixed>,
+    mCtx: ResolverContext<{} | string | number | boolean | undefined | null>,
   ): string | undefined {
     const returnType = mCtx.info.returnType
     if (

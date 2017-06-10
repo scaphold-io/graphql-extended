@@ -62,6 +62,8 @@ import { Middleware } from '../middleware/Middleware'
 import { ExecutionContext } from './ExecutionContext'
 import { GraphQLExtResolveInfo } from './GraphQLExtResolveInfo'
 
+declare type MaybePromise<T> = T | Promise<T>
+
 /**
  * Terminology
  *
@@ -82,7 +84,7 @@ import { GraphQLExtResolveInfo } from './GraphQLExtResolveInfo'
  * 3) inline fragment "spreads" e.g. "...on Type { a }"
  */
 export interface ExecutionResult {
-  data?: {[key: string]: mixed} | null
+  data?: {[key: string]: {} | string | number | boolean | undefined | null} | null
   errors?: Array<GraphQLError>
 }
 
@@ -90,19 +92,19 @@ export interface ExecutionResult {
  * All information needed for middleware to function
  */
 type MiddlewareContext = {
-  middleware: Array<Middleware<mixed, mixed, mixed>>;
-  middlewareValues: Array<mixed>;
+  middleware: Array<Middleware<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null>>;
+  middlewareValues: Array<{} | string | number | boolean | undefined | null>;
 }
 
 export type ExecutionConfig = {
   schema: GraphQLSchema,
   document: DocumentNode,
-  rootValue?: mixed,
-  contextValue?: mixed,
-  variableValues?: {[key: string]: mixed},
+  rootValue?: {} | string | number | boolean | undefined | null,
+  contextValue?: {} | string | number | boolean | undefined | null,
+  variableValues?: {[key: string]: {} | string | number | boolean | undefined | null},
   operationName?: string,
-  queryReducers?: Array<QueryReducer<mixed, mixed>>,
-  middleware?: Array<Middleware<mixed, mixed, mixed>>,
+  queryReducers?: Array<QueryReducer<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null>>,
+  middleware?: Array<Middleware<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null>>,
 }
 
 /**
@@ -173,7 +175,7 @@ export function execute(config: ExecutionConfig): Promise<ExecutionResult> {
     // in this case is the entire response.
     ctx.errors.push(error)
     return null
-  }).then((data: { [key: string]: mixed } | null) => {
+  }).then((data: { [key: string]: {} | string | number | boolean | undefined | null } | null) => {
     runAfterQueryware(ctx, middlewareContext)
     if (!ctx.errors.length) {
       return { data }
@@ -183,7 +185,7 @@ export function execute(config: ExecutionConfig): Promise<ExecutionResult> {
 }
 
 function reduceQueryIfNeeded(
-  queryReducers: Array<QueryReducer<mixed, mixed>> = [],
+  queryReducers: Array<QueryReducer<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null>> = [],
   context: ExecutionContext,
 ): Promise<ExecutionContext> {
   // If there are no reducers, don't bother walking the query
@@ -195,7 +197,7 @@ function reduceQueryIfNeeded(
 }
 
 function reduceQuery(
-  queryReducers: Array<QueryReducer<mixed, mixed>> = [],
+  queryReducers: Array<QueryReducer<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null>> = [],
   exeContext: ExecutionContext,
 ): Promise<ExecutionContext> {
 
@@ -286,9 +288,9 @@ function reduceType(
   path: ResponsePath,
   type: GraphQLOutputType,
   selection: SelectionSetNode,
-  queryReducers: Array<QueryReducer<mixed, mixed>>,
-  reductions: Array<mixed>,
-): Array<mixed> {
+  queryReducers: Array<QueryReducer<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null>>,
+  reductions: Array<{} | string | number | boolean | undefined | null>,
+): Array<{} | string | number | boolean | undefined | null> {
   if (type instanceof GraphQLObjectType) {
     const innerfields = collectFields(
       exeContext,
@@ -393,12 +395,12 @@ function addPath(prev: ResponsePath, key: string | number): { prev: ResponsePath
  */
 function buildMiddlewareContext(
   exeContext: ExecutionContext,
-  middleware: Array<Middleware<mixed, mixed, mixed>> = [],
+  middleware: Array<Middleware<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null>> = [],
 ): MiddlewareContext {
   // All middleware must have a beforeQuery method to initialize the query value
   const validMiddleware = middleware.reduce(
     (acc, midd) => ((midd && typeof midd.beforeQuery  === 'function') ? [...acc, midd] : acc),
-    [] as Array<Middleware<mixed, mixed, mixed>>,
+    [] as Array<Middleware<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null>>,
   )
   const middlewareValues = validMiddleware.map(
     midd => midd.beforeQuery(exeContext),
@@ -434,9 +436,9 @@ function runAfterQueryware(
 function buildExecutionContext(
   schema: GraphQLSchema,
   document: DocumentNode,
-  rootValue: mixed,
-  contextValue: mixed,
-  rawVariableValues: {[key: string]: mixed} | undefined,
+  rootValue: {} | string | number | boolean | undefined | null,
+  contextValue: {} | string | number | boolean | undefined | null,
+  rawVariableValues: {[key: string]: {} | string | number | boolean | undefined | null} | undefined,
   operationName: string | undefined,
 ): ExecutionContext {
   const errors: Array<GraphQLError> = []
@@ -494,9 +496,9 @@ function buildExecutionContext(
 function executeOperation(
   exeContext: ExecutionContext,
   operation: OperationDefinitionNode,
-  rootValue: mixed,
+  rootValue: {} | string | number | boolean | undefined | null,
   middlewareContext: MiddlewareContext,
-): Promise<{[key: string]: mixed}> | {[key: string]: mixed} {
+): Promise<{[key: string]: {} | string | number | boolean | undefined | null}> | {[key: string]: {} | string | number | boolean | undefined | null} {
   const type = getOperationRootType(exeContext.schema, operation)
   const fields = collectFields(
     exeContext,
@@ -557,11 +559,11 @@ function getOperationRootType(
 function executeFieldsSerially(
   exeContext: ExecutionContext,
   parentType: GraphQLObjectType,
-  sourceValue: mixed,
+  sourceValue: {} | string | number | boolean | undefined | null,
   path: ResponsePath,
   fields: {[key: string]: Array<FieldNode>},
   middlewareContext: MiddlewareContext,
-): Promise<{[key: string]: mixed}> {
+): Promise<{[key: string]: {} | string | number | boolean | undefined | null}> {
   return Object.keys(fields).reduce(
     (prevPromise, responseName) => prevPromise.then(results => {
       const fieldNodes = fields[responseName]
@@ -598,11 +600,11 @@ function executeFieldsSerially(
 function executeFields(
   exeContext: ExecutionContext,
   parentType: GraphQLObjectType,
-  sourceValue: mixed,
+  sourceValue: {} | string | number | boolean | undefined | null,
   path: ResponsePath,
   fields: {[key: string]: Array<FieldNode>},
   middlewareContext: MiddlewareContext,
-): MaybePromise<{[key: string]: mixed}> {
+): MaybePromise<{[key: string]: {} | string | number | boolean | undefined | null}> {
   let containsPromise = false
 
   const finalResults = Object.keys(fields).reduce(
@@ -808,11 +810,11 @@ function getFieldEntryKey(node: FieldNode): string {
 function resolveField(
   exeContext: ExecutionContext,
   parentType: GraphQLObjectType,
-  source: mixed,
+  source: {} | string | number | boolean | undefined | null,
   fieldNodes: Array<FieldNode>,
   path: ResponsePath,
   middlewareContext: MiddlewareContext,
-): mixed {
+): {} | string | number | boolean | undefined | null {
   const fieldNode = fieldNodes[0]
   const fieldName = fieldNode.name.value
 
@@ -880,7 +882,7 @@ function resolveOrError<TSource, TContext>(
   context: TContext,
   info: GraphQLExtResolveInfo,
   middlewareContext: MiddlewareContext,
-): Error | mixed {
+): Error | {} | string | number | boolean | undefined | null {
   try {
     // Build a JS object of arguments from the field.arguments AST, using the
     // variables scope to fulfill any variable references.
@@ -907,7 +909,7 @@ function resolveOrError<TSource, TContext>(
 
     // Reduces all afterField middlewares into a single promise containing the final result
     // for the field.
-    const runAfterware = (value: mixed): MaybePromise<mixed> => {
+    const runAfterware = (value: {} | string | number | boolean | undefined | null): MaybePromise<{} | string | number | boolean | undefined | null> => {
       // If there are no middleware functions then don't bother running this.
       if (middlewareContext.middleware.length === 0) {
         return value
@@ -957,9 +959,9 @@ function completeValueCatchingError(
   fieldNodes: Array<FieldNode>,
   info: GraphQLResolveInfo,
   path: ResponsePath,
-  result: mixed,
+  result: {} | string | number | boolean | undefined | null,
   middlewareContext: MiddlewareContext,
-): mixed {
+): {} | string | number | boolean | undefined | null {
   // If the field type is non-nullable, then it is resolved without any
   // protection from errors, however it still properly locates the error.
   if (returnType instanceof GraphQLNonNull) {
@@ -1014,9 +1016,9 @@ function completeValueWithLocatedError(
   fieldNodes: Array<FieldNode>,
   info: GraphQLResolveInfo,
   path: ResponsePath,
-  result: mixed,
+  result: {} | string | number | boolean | undefined | null,
   middlewareContext: MiddlewareContext,
-): mixed {
+): {} | string | number | boolean | undefined | null {
   try {
     const completed = completeValue(
       exeContext,
@@ -1069,9 +1071,9 @@ function completeValue(
   fieldNodes: Array<FieldNode>,
   info: GraphQLResolveInfo,
   path: ResponsePath,
-  result: mixed,
+  result: {} | string | number | boolean | undefined | null,
   middlewareContext: MiddlewareContext,
-): mixed {
+): {} | string | number | boolean | undefined | null {
   // If result is a Promise, apply-lift over completeValue.
   const promise = getPromise(result)
   if (promise) {
@@ -1183,9 +1185,9 @@ function completeListValue(
   fieldNodes: Array<FieldNode>,
   info: GraphQLResolveInfo,
   path: ResponsePath,
-  result: mixed,
+  result: {} | string | number | boolean | undefined | null,
   middlewareContext: MiddlewareContext,
-): mixed {
+): {} | string | number | boolean | undefined | null {
   invariant(
     isCollection(result),
     `Expected Iterable, but did not find one for field ${
@@ -1196,8 +1198,8 @@ function completeListValue(
   // where the list contains no Promises by avoiding creating another Promise.
   const itemType = returnType.ofType
   let containsPromise = false
-  const completedResults: Array<mixed> = []
-  forEach(result as Array<mixed>, (item, index) => {
+  const completedResults: Array<{} | string | number | boolean | undefined | null> = []
+  forEach(result as Array<{} | string | number | boolean | undefined | null>, (item, index) => {
     // No need to modify the info object containing the path,
     // since from here on it is not ever accessed by resolver functions.
     const fieldPath = addPath(path, index)
@@ -1226,8 +1228,8 @@ function completeListValue(
  */
 function completeLeafValue(
   returnType: GraphQLLeafType,
-  result: mixed,
-): mixed {
+  result: {} | string | number | boolean | undefined | null,
+): {} | string | number | boolean | undefined | null {
   invariant(returnType.serialize, 'Missing serialize method on type')
   const serializedResult = returnType.serialize(result)
   if (isNullish(serializedResult)) {
@@ -1249,9 +1251,9 @@ function completeAbstractValue(
   fieldNodes: Array<FieldNode>,
   info: GraphQLResolveInfo,
   path: ResponsePath,
-  result: mixed,
+  result: {} | string | number | boolean | undefined | null,
   middlewareContext: MiddlewareContext,
-): mixed {
+): {} | string | number | boolean | undefined | null {
   const runtimeType = returnType.resolveType ?
     returnType.resolveType(result, exeContext.contextValue, info) :
     defaultResolveTypeFn(result, exeContext.contextValue, info, returnType)
@@ -1302,7 +1304,7 @@ function ensureValidRuntimeType(
   returnType: GraphQLAbstractType,
   fieldNodes: Array<FieldNode>,
   info: GraphQLResolveInfo,
-  result: mixed,
+  result: {} | string | number | boolean | undefined | null,
 ): GraphQLObjectType {
   const runtimeType = typeof runtimeTypeOrName === 'string' ?
     exeContext.schema.getType(runtimeTypeOrName) :
@@ -1337,9 +1339,9 @@ function completeObjectValue(
   fieldNodes: Array<FieldNode>,
   info: GraphQLResolveInfo,
   path: ResponsePath,
-  result: mixed,
+  result: {} | string | number | boolean | undefined | null,
   middlewareContext: MiddlewareContext,
-): mixed {
+): {} | string | number | boolean | undefined | null {
   // If there is an isTypeOf predicate function, call it with the
   // current result. If isTypeOf returns false, then raise an error rather
   // than continuing execution.
@@ -1382,7 +1384,7 @@ function completeObjectValue(
 
 function invalidReturnTypeError(
   returnType: GraphQLObjectType,
-  result: mixed,
+  result: {} | string | number | boolean | undefined | null,
   fieldNodes: Array<FieldNode>,
 ): GraphQLError {
   return new GraphQLError(
@@ -1397,9 +1399,9 @@ function collectAndExecuteSubfields(
   fieldNodes: Array<FieldNode>,
   _info: GraphQLResolveInfo,
   path: ResponsePath,
-  result: mixed,
+  result: {} | string | number | boolean | undefined | null,
   middlewareContext: MiddlewareContext,
-): mixed {
+): {} | string | number | boolean | undefined | null {
   // Collect sub-fields to execute to complete this value.
   let subFieldNodes = Object.create(null)
   const visitedFragmentNames = Object.create(null)
@@ -1425,8 +1427,8 @@ function collectAndExecuteSubfields(
  * isTypeOf for the object being coerced, returning the first type that matches.
  */
 function defaultResolveTypeFn(
-  value: mixed,
-  context: mixed,
+  value: {} | string | number | boolean | undefined | null,
+  context: {} | string | number | boolean | undefined | null,
   info: GraphQLResolveInfo,
   abstractType: GraphQLAbstractType,
 ): MaybePromise<GraphQLObjectType> | undefined {
@@ -1465,7 +1467,7 @@ function defaultResolveTypeFn(
  * and returns it as the result, or if it's a function, returns the result
  * of calling that function while passing along args and context.
  */
-export const defaultFieldResolver: GraphQLFieldResolver<mixed, mixed> =
+export const defaultFieldResolver: GraphQLFieldResolver<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null> =
   (source, args, context, info) => {
     // ensure source is a value for which property access is acceptable.
     if (source && (typeof source === 'object' || typeof source === 'function')) {
@@ -1481,7 +1483,7 @@ export const defaultFieldResolver: GraphQLFieldResolver<mixed, mixed> =
  * Only returns the value if it acts like a Promise, i.e. has a "then" function,
  * otherwise returns void.
  */
-function getPromise<T>(value: Promise<T> | mixed): Promise<T> | void {
+function getPromise<T>(value: Promise<T> | {} | string | number | boolean | undefined | null): Promise<T> | void {
   if (typeof value === 'object' &&
       value !== null &&
       typeof value['then'] === 'function'
@@ -1503,7 +1505,7 @@ function getFieldDef(
   schema: GraphQLSchema,
   parentType: GraphQLObjectType,
   fieldName: string,
-): GraphQLField<mixed, mixed> {
+): GraphQLField<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null> {
   if (fieldName === SchemaMetaFieldDef.name && schema.getQueryType() === parentType) {
     return SchemaMetaFieldDef
   } else if (fieldName === TypeMetaFieldDef.name &&

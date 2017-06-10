@@ -24,6 +24,9 @@
   ],
   "main": "build/index.js",
   "types": "build/index.d.ts",
+  "files": [
+    "build"
+  ],
   "bin": {},
   "scripts": {
     "buildw": "./scripts/buildw",
