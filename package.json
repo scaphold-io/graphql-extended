@@ -41,26 +41,26 @@
     "build-dot-flow": "./scripts/build-types"
   },
   "dependencies": {
-    "graphql": "^0.9.6",
+    "graphql": "^0.10.1",
     "immutable": "^3.8.1",
-    "iterall": "1.0.3",
+    "iterall": "^1.1.1",
     "tslib": "^1.5.0"
   },
   "devDependencies": {
     "@types/graphql": "^0.9.0",
     "@types/immutable": "^3.8.7",
     "@types/jest": "^19.2.2",
-    "@types/node": "^6.0.38",
-    "graphql": "^0.9.3",
-    "install": "^0.8.7",
-    "jest": "^19.0.2",
+    "@types/node": "^7.0.29",
+    "graphql": "^0.10.1",
+    "install": "^0.10.1",
+    "jest": "^20.0.4",
     "nodemon": "^1.11.0",
     "npm": "^4.4.1",
     "source-map-support": "^0.4.6",
-    "supertest": "^2.0.1",
-    "ts-jest": "^19.0.2",
-    "ts-node": "^2.0.0",
-    "tslint": "^4.2.0",
+    "supertest": "^3.0.0",
+    "ts-jest": "^20.0.6",
+    "ts-node": "^3.0.6",
+    "tslint": "^5.4.3",
     "typescript": "^2.2.1"
   },
   "jest": {
