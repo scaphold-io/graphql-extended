@@ -60,8 +60,8 @@ export class FactoryMiddleware {
     _factory: SchemaFactory,
     _definition: ObjectTypeDefinitionNode,
     _fieldDef: FieldDefinitionNode,
-    field: GraphQLFieldConfigExt<mixed, mixed>,
-  ): GraphQLFieldConfigExt<mixed, mixed> {
+    field: GraphQLFieldConfigExt<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null>,
+  ): GraphQLFieldConfigExt<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null> {
     return field
   }
 
@@ -74,8 +74,8 @@ export class FactoryMiddleware {
     _factory: SchemaFactory,
     _definition: InterfaceTypeDefinitionNode,
     _fieldDef: FieldDefinitionNode,
-    field: GraphQLFieldConfigExt<mixed, mixed>,
-  ): GraphQLFieldConfigExt<mixed, mixed> {
+    field: GraphQLFieldConfigExt<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null>,
+  ): GraphQLFieldConfigExt<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null> {
     return field
   }
 

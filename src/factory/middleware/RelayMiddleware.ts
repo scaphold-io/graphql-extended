@@ -28,7 +28,7 @@ export const GraphQLCursor = new GraphQLScalarType({
     'character sequences.',
   serialize: String,
   parseValue: String,
-  parseLiteral(ast): mixed {
+  parseLiteral(ast): {} | string | number | boolean | undefined | null {
     return ast.kind === Kind.STRING ? ast.value : null
   },
 })
@@ -58,7 +58,7 @@ function connectionSpec(def: ObjectTypeDefinitionNode): string {
 export class RelayMiddleware extends FactoryMiddleware {
 
   constructor(
-    private resolveNode: GraphQLTypeResolver<mixed, mixed>,
+    private resolveNode: GraphQLTypeResolver<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null>,
   ) { super() }
 
   /**
@@ -107,8 +107,8 @@ export class RelayMiddleware extends FactoryMiddleware {
     factory: SchemaFactory,
     _definition: ObjectTypeDefinitionNode,
     _fieldDef: FieldDefinitionNode,
-    field: GraphQLFieldConfigExt<mixed, mixed>,
-  ): GraphQLFieldConfigExt<mixed, mixed> {
+    field: GraphQLFieldConfigExt<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null>,
+  ): GraphQLFieldConfigExt<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null> {
     if (
       isListType(field.type) &&
       implementsInterface(field.type, 'Node')

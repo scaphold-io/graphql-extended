@@ -166,7 +166,7 @@ function getNamedTypeNode(typeNode: TypeNode): NamedTypeNode {
  */
 export function buildASTSchema(
   ast: DocumentNode,
-  resolverMap: TypeResolverMap<mixed, mixed> = {},
+  resolverMap: TypeResolverMap<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null> = {},
 ): GraphQLSchema {
   if (!ast || ast.kind !== DOCUMENT) {
     throw new Error('Must provide a document ast.')
@@ -433,18 +433,18 @@ export function buildASTSchema(
   function getResolver(
     type: ObjectTypeDefinitionNode,
     field: FieldDefinitionNode,
-  ): GraphQLFieldResolver<mixed, mixed> {
+  ): GraphQLFieldResolver<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null> {
     if (resolverMap && resolverMap[type.name.value] && resolverMap[type.name.value][field.name.value]) {
       return resolverMap[type.name.value][field.name.value]
     }
     // If no resolver is defined, return the identity function.
-    return (s: mixed) => s ? s[field.name.value] : s
+    return (s: {} | string | number | boolean | undefined | null) => s ? s[field.name.value] : s
   }
 
   function makeObjectFieldDefMap(
     def: ObjectTypeDefinitionNode,
-  ): GraphQLFieldConfigMapExt<mixed, mixed> {
-    return keyValMap<FieldDefinitionNode, GraphQLFieldConfigExt<mixed, mixed>> (
+  ): GraphQLFieldConfigMapExt<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null> {
+    return keyValMap<FieldDefinitionNode, GraphQLFieldConfigExt<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null>> (
       def.fields,
       field => field.name.value,
       field => ({
@@ -460,8 +460,8 @@ export function buildASTSchema(
 
   function makeInterfaceFieldDefMap(
     def: InterfaceTypeDefinitionNode,
-  ): GraphQLFieldConfigMapExt<mixed, mixed> {
-    return keyValMap<FieldDefinitionNode, GraphQLFieldConfigExt<mixed, mixed>> (
+  ): GraphQLFieldConfigMapExt<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null> {
+    return keyValMap<FieldDefinitionNode, GraphQLFieldConfigExt<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null>> (
       def.fields,
       field => field.name.value,
       field => ({
@@ -486,7 +486,7 @@ export function buildASTSchema(
       []
   }
 
-  function makeInputValues(values: Array<InputValueDefinitionNode>): { [name: string]: mixed } {
+  function makeInputValues(values: Array<InputValueDefinitionNode>): { [name: string]: {} | string | number | boolean | undefined | null } {
     return keyValMap(
       values,
       value => value.name.value,
@@ -633,7 +633,7 @@ function leadingSpaces(str: string): number {
   return i
 }
 
-const cannotExecuteSchema: GraphQLTypeResolver<mixed, mixed> = () => {
+const cannotExecuteSchema: GraphQLTypeResolver<{} | string | number | boolean | undefined | null, {} | string | number | boolean | undefined | null> = () => {
   throw new Error(
     'Generated Schema cannot use Interface or Union types for execution.',
   )

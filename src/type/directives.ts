@@ -14,7 +14,7 @@ export type GraphQLDirectiveValueConfig = {
   name: string;
   description?: string;
   args: {
-    [name: string]: mixed;
+    [name: string]: {} | string | number | boolean | undefined | null;
   },
   location: DirectiveLocationEnum;
 }
@@ -23,7 +23,7 @@ export class GraphQLDirectiveValue {
   public name: string
 
   public args: {
-    [name: string]: mixed;
+    [name: string]: {} | string | number | boolean | undefined | null;
   }
 
   public location: DirectiveLocationEnum
@@ -35,7 +35,7 @@ export class GraphQLDirectiveValue {
     this.location = config.location
   }
 
-  public get(key: string): mixed {
+  public get(key: string): {} | string | number | boolean | undefined | null {
     return this.args[key]
   }
 }

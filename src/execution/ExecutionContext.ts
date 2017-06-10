@@ -14,9 +14,9 @@ import {
 export type ExecutionContext = {
   schema: GraphQLSchema;
   fragments: {[key: string]: FragmentDefinitionNode};
-  rootValue: mixed;
-  contextValue: mixed;
+  rootValue: {} | string | number | boolean | undefined | null;
+  contextValue: {} | string | number | boolean | undefined | null;
   operation: OperationDefinitionNode;
-  variableValues: {[key: string]: mixed};
+  variableValues: {[key: string]: {} | string | number | boolean | undefined | null};
   errors: Array<GraphQLError>;
 }
